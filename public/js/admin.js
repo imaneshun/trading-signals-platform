@@ -91,6 +91,12 @@ class AdminPanel {
             contactForm.addEventListener('submit', (e) => this.handleContactUpdate(e));
         }
 
+        // Wallet form
+        const walletForm = document.getElementById('walletForm');
+        if (walletForm) {
+            walletForm.addEventListener('submit', (e) => this.handleWalletUpdate(e));
+        }
+
         // Modal backdrop clicks
         document.getElementById('signal-modal')?.addEventListener('click', (e) => {
             if (e.target.id === 'signal-modal') this.hideSignalModal();

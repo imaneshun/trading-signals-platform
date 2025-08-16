@@ -154,6 +154,41 @@
                     </form>
                 </div>
 
+                <!-- Crypto Wallet Management -->
+                <div class="trading-card p-6">
+                    <h3 class="text-xl font-semibold text-white mb-4">Crypto Wallet Addresses</h3>
+                    <form id="walletForm" class="space-y-4">
+                        <div>
+                            <label for="btcAddress" class="block text-sm font-medium text-gray-300 mb-2">Bitcoin (BTC) Address</label>
+                            <input type="text" id="btcAddress" name="btcAddress" 
+                                   class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-trading-accent"
+                                   placeholder="Enter BTC wallet address">
+                        </div>
+                        <div>
+                            <label for="ethAddress" class="block text-sm font-medium text-gray-300 mb-2">Ethereum (ETH) Address</label>
+                            <input type="text" id="ethAddress" name="ethAddress" 
+                                   class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-trading-accent"
+                                   placeholder="Enter ETH wallet address">
+                        </div>
+                        <div>
+                            <label for="usdtAddress" class="block text-sm font-medium text-gray-300 mb-2">USDT (TRC20) Address</label>
+                            <input type="text" id="usdtAddress" name="usdtAddress" 
+                                   class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-trading-accent"
+                                   placeholder="Enter USDT wallet address">
+                        </div>
+                        <div>
+                            <label for="bnbAddress" class="block text-sm font-medium text-gray-300 mb-2">Binance Coin (BNB) Address</label>
+                            <input type="text" id="bnbAddress" name="bnbAddress" 
+                                   class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-trading-accent"
+                                   placeholder="Enter BNB wallet address">
+                        </div>
+                        <button type="submit" class="trading-button-primary">
+                            <i data-lucide="wallet" class="w-5 h-5 mr-2 inline"></i>
+                            Update Wallet Addresses
+                        </button>
+                    </form>
+                </div>
+
                 <!-- Platform Stats -->
                 <div class="trading-card p-6">
                     <h3 class="text-xl font-semibold text-white mb-4">Platform Statistics</h3>

@@ -245,17 +245,18 @@ app.post('/api/investment/create', async (req, res) => {
       VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
       [user.id, amount, investmentRate, paymentMethod, 'pending']);
 
-    // Get payment method details
-    const paymentResult = await query('SELECT * FROM payment_methods WHERE name = $1 AND is_active = TRUE', [paymentMethod]);
-    const paymentMethods = paymentResult.rows || paymentResult || [];
+    // Get wallet address for the payment method
+    const walletKey = `${paymentMethod.toLowerCase()}_address`;
+    const walletResult = await query('SELECT value FROM settings WHERE key = $1', [walletKey]);
+    const walletRows = walletResult.rows || walletResult || [];
     
-    if (paymentMethods.length === 0) {
-      return res.status(400).json({ error: 'Invalid payment method' });
+    if (walletRows.length === 0 || !walletRows[0].value) {
+      return res.status(400).json({ error: `${paymentMethod} wallet address not configured. Please contact admin.` });
     }
 
     const paymentInfo = {
       method: paymentMethod,
-      address: paymentMethods[0].address,
+      address: walletRows[0].value,
       amount: amount
     };
 
@@ -533,39 +534,25 @@ app.get('/api/admin/settings', authenticateToken, requireAdmin, async (req, res)
 });
 
 app.put('/api/admin/settings', authenticateToken, requireAdmin, async (req, res) => {
-  const { vip_price, contact_method, contact_value } = req.body;
-  
   try {
-    const updates = [];
+    const updates = req.body;
+    console.log('Received settings update:', updates);
     
-    if (vip_price !== undefined) {
-      updates.push(['vip_price', vip_price]);
-    }
-    
-    if (contact_method !== undefined) {
-      updates.push(['contact_method', contact_method]);
-    }
-    
-    if (contact_value !== undefined) {
-      updates.push(['contact_value', contact_value]);
-    }
-    
-    if (updates.length === 0) {
-      return res.status(400).json({ error: 'No valid settings provided' });
-    }
-    
-    for (const [key, value] of updates) {
-      await query(`
-        INSERT INTO settings (key, value, updated_at) 
-        VALUES ($1, $2, CURRENT_TIMESTAMP) 
-        ON CONFLICT (key) 
-        DO UPDATE SET value = EXCLUDED.value, updated_at = CURRENT_TIMESTAMP`,
-        [key, value]);
+    for (const [key, value] of Object.entries(updates)) {
+      if (value !== undefined && value !== null) {
+        console.log(`Updating setting: ${key} = ${value}`);
+        await query(`
+          INSERT INTO settings (key, value, updated_at) 
+          VALUES ($1, $2, CURRENT_TIMESTAMP)
+          ON CONFLICT (key) 
+          DO UPDATE SET value = EXCLUDED.value, updated_at = EXCLUDED.updated_at`,
+          [key, value.toString()]);
+      }
     }
     
     res.json({ message: 'Settings updated successfully' });
   } catch (err) {
-    console.error('Update settings error:', err);
+    console.error('Settings update error:', err);
     return res.status(500).json({ error: 'Failed to update settings' });
   }
 });
