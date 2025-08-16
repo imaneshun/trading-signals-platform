@@ -1,0 +1,185 @@
+/* Custom Button Styles for Trading Signals Platform */
+
+/* Investment Button - Purple/Pink/Red Gradient with Pulse Animation */
+.trading-button-investment {
+    background: linear-gradient(135deg, #9333ea 0%, #ec4899 50%, #dc2626 100%);
+    color: white;
+    padding: 12px 32px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 18px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(0);
+    box-shadow: 0 10px 25px rgba(147, 51, 234, 0.3);
+    position: relative;
+    overflow: hidden;
+    animation: pulse 2s infinite;
+}
+
+.trading-button-investment:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #ec4899 50%, #9333ea 100%);
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 20px 40px rgba(147, 51, 234, 0.4);
+    animation: none;
+}
+
+.trading-button-investment:active {
+    transform: translateY(-2px) scale(1.02);
+}
+
+/* Dashboard Button - Indigo/Purple Gradient with Ring Effect */
+.trading-button-dashboard {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    color: white;
+    padding: 12px 32px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 18px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(0);
+    box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3), 0 0 0 2px rgba(79, 70, 229, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.trading-button-dashboard:hover {
+    background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 20px 40px rgba(79, 70, 229, 0.4), 0 0 0 4px rgba(79, 70, 229, 0.4);
+}
+
+.trading-button-dashboard:active {
+    transform: translateY(-2px) scale(1.02);
+}
+
+/* Enhanced VIP Button */
+.trading-button-secondary {
+    background: rgba(31, 41, 55, 0.8);
+    color: white;
+    padding: 12px 32px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 18px;
+    border: 2px solid rgba(75, 85, 99, 0.5);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(0);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+
+.trading-button-secondary:hover {
+    border-color: #00d4aa;
+    background: rgba(0, 212, 170, 0.1);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 10px 25px rgba(0, 212, 170, 0.2);
+}
+
+/* Enhanced Primary Button */
+.trading-button-primary {
+    background: linear-gradient(135deg, #00d4aa 0%, #0891b2 100%);
+    color: white;
+    padding: 12px 32px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 18px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(0);
+    box-shadow: 0 10px 25px rgba(0, 212, 170, 0.3);
+}
+
+.trading-button-primary:hover {
+    background: linear-gradient(135deg, #0891b2 0%, #00d4aa 100%);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 15px 30px rgba(0, 212, 170, 0.4);
+}
+
+/* Pulse Animation */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+
+/* Shimmer Effect for Investment Button */
+.trading-button-investment::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.trading-button-investment:hover::before {
+    left: 100%;
+}
+
+/* Glow Effect for Dashboard Button */
+.trading-button-dashboard::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(79, 70, 229, 0.3) 0%, transparent 70%);
+    transition: all 0.3s ease;
+    transform: translate(-50%, -50%);
+    z-index: -1;
+}
+
+.trading-button-dashboard:hover::after {
+    width: 200px;
+    height: 200px;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+    .trading-button-investment,
+    .trading-button-dashboard,
+    .trading-button-primary,
+    .trading-button-secondary {
+        padding: 10px 24px;
+        font-size: 16px;
+    }
+}
+
+/* Focus States for Accessibility */
+.trading-button-investment:focus,
+.trading-button-dashboard:focus,
+.trading-button-primary:focus,
+.trading-button-secondary:focus {
+    outline: 2px solid #00d4aa;
+    outline-offset: 2px;
+}
+
+/* Disabled State */
+.trading-button-investment:disabled,
+.trading-button-dashboard:disabled,
+.trading-button-primary:disabled,
+.trading-button-secondary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    animation: none;
+}
+
+.trading-button-investment:disabled:hover,
+.trading-button-dashboard:disabled:hover,
+.trading-button-primary:disabled:hover,
+.trading-button-secondary:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
