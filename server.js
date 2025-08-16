@@ -558,6 +558,92 @@ app.put('/api/admin/wallets', authenticateToken, requireAdmin, async (req, res) 
   }
 });
 
+// Admin password change endpoint
+app.put('/api/admin/change-password', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Current password and new password are required' });
+    }
+    
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: 'New password must be at least 6 characters' });
+    }
+    
+    // Get current user
+    const userResult = await query('SELECT * FROM users WHERE id = $1', [req.user.id]);
+    const users = userResult.rows || userResult || [];
+    
+    if (users.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const user = users[0];
+    
+    // Verify current password
+    const isValidPassword = await bcrypt.compare(currentPassword, user.password);
+    if (!isValidPassword) {
+      return res.status(400).json({ error: 'Current password is incorrect' });
+    }
+    
+    // Hash new password
+    const hashedNewPassword = await bcrypt.hash(newPassword, 12);
+    
+    // Update password
+    await query('UPDATE users SET password = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2', 
+      [hashedNewPassword, req.user.id]);
+    
+    res.json({ message: 'Password changed successfully' });
+  } catch (err) {
+    console.error('Password change error:', err);
+    return res.status(500).json({ error: 'Failed to change password' });
+  }
+});
+
+// User password change endpoint
+app.put('/api/user/change-password', authenticateToken, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Current password and new password are required' });
+    }
+    
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: 'New password must be at least 6 characters' });
+    }
+    
+    // Get current user
+    const userResult = await query('SELECT * FROM users WHERE id = $1', [req.user.userId || req.user.id]);
+    const users = userResult.rows || userResult || [];
+    
+    if (users.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const user = users[0];
+    
+    // Verify current password
+    const isValidPassword = await bcrypt.compare(currentPassword, user.password);
+    if (!isValidPassword) {
+      return res.status(400).json({ error: 'Current password is incorrect' });
+    }
+    
+    // Hash new password
+    const hashedNewPassword = await bcrypt.hash(newPassword, 12);
+    
+    // Update password
+    await query('UPDATE users SET password = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2', 
+      [hashedNewPassword, req.user.userId || req.user.id]);
+    
+    res.json({ message: 'Password changed successfully' });
+  } catch (err) {
+    console.error('User password change error:', err);
+    return res.status(500).json({ error: 'Failed to change password' });
+  }
+});
+
 // Settings
 app.get('/api/admin/settings', authenticateToken, requireAdmin, async (req, res) => {
   try {

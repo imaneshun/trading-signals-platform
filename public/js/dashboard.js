@@ -30,8 +30,13 @@ class DashboardManager {
 
     setupEventListeners() {
         const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', () => this.logout());
+        // Event listeners
+        document.getElementById('logout-btn').addEventListener('click', this.logout.bind(this));
+        
+        // Password form
+        const passwordForm = document.getElementById('passwordForm');
+        if (passwordForm) {
+            passwordForm.addEventListener('submit', this.handlePasswordChange.bind(this));
         }
     }
 
@@ -260,23 +265,6 @@ class DashboardManager {
 
     hasVIPAccess() {
         if (!this.currentUser.vip_expires_at) return false;
-        const expiryDate = new Date(this.currentUser.vip_expires_at);
-        const now = new Date();
-        return expiryDate > now;
-    }
-
-    logout() {
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('user_data');
-        window.location.href = '/';
-    }
-
-    showNotification(message, type = 'info') {
-        const notification = document.getElementById('notification');
-        const messageElement = document.getElementById('notificationMessage');
-        
-        if (!notification || !messageElement) return;
-
         messageElement.textContent = message;
         
         // Set notification color based on type

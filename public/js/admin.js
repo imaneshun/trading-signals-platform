@@ -97,6 +97,12 @@ class AdminPanel {
             walletForm.addEventListener('submit', (e) => this.handleWalletUpdate(e));
         }
 
+        // Password form
+        const passwordForm = document.getElementById('passwordForm');
+        if (passwordForm) {
+            passwordForm.addEventListener('submit', (e) => this.handlePasswordUpdate(e));
+        }
+
         // Modal backdrop clicks
         document.getElementById('signal-modal')?.addEventListener('click', (e) => {
             if (e.target.id === 'signal-modal') this.hideSignalModal();
@@ -534,6 +540,43 @@ class AdminPanel {
     async handleContactUpdate(e) {
         e.preventDefault();
         const formData = new FormData(e.target);
+        const contactData = {};
+        
+        const contactMethod = formData.get('contact-method');
+        const contactValue = formData.get('contact-value');
+        
+        if (contactMethod) {
+            contactData.contact_method = contactMethod;
+        }
+        
+        if (contactValue) {
+            contactData.contact_value = contactValue;
+        }
+
+        try {
+            const response = await this.fetchWithAuth('/api/admin/settings', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(contactData)
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                this.showNotification('Contact information updated successfully!', 'success');
+                this.settings = { ...this.settings, ...contactData };
+            } else {
+                this.showNotification(data.error || 'Failed to update contact information', 'error');
+            }
+        } catch (error) {
+            console.error('Error updating contact info:', error);
+            this.showNotification('Network error. Please try again.', 'error');
+        }
+    }
+
+    async handleWalletUpdate(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
         const walletData = {};
         
         const btcAddress = formData.get('btcAddress');
@@ -563,7 +606,54 @@ class AdminPanel {
                 this.showNotification(data.error || 'Failed to update wallet addresses', 'error');
             }
         } catch (error) {
-            console.error('Error updating contact info:', error);
+            console.error('Error updating wallet addresses:', error);
+            this.showNotification('Network error. Please try again.', 'error');
+        }
+    }
+
+    async handlePasswordUpdate(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        
+        const currentPassword = formData.get('currentPassword');
+        const newPassword = formData.get('newPassword');
+        const confirmPassword = formData.get('confirmPassword');
+        
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            this.showNotification('Please fill in all password fields', 'error');
+            return;
+        }
+        
+        if (newPassword !== confirmPassword) {
+            this.showNotification('New passwords do not match', 'error');
+            return;
+        }
+        
+        if (newPassword.length < 6) {
+            this.showNotification('New password must be at least 6 characters', 'error');
+            return;
+        }
+
+        try {
+            const response = await this.fetchWithAuth('/api/admin/change-password', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    currentPassword,
+                    newPassword
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                this.showNotification('Password changed successfully!', 'success');
+                e.target.reset(); // Clear form
+            } else {
+                this.showNotification(data.error || 'Failed to change password', 'error');
+            }
+        } catch (error) {
+            console.error('Error changing password:', error);
             this.showNotification('Network error. Please try again.', 'error');
         }
     }

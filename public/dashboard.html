@@ -70,6 +70,35 @@
             </div>
         </div>
 
+        <!-- Password Change Section -->
+        <div class="bg-gray-800 rounded-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4">Change Password</h2>
+            <form id="passwordForm" class="space-y-4 max-w-md">
+                <div>
+                    <label for="currentPassword" class="block text-sm font-medium text-gray-300 mb-2">Current Password</label>
+                    <input type="password" id="currentPassword" name="currentPassword" required
+                           class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           placeholder="Enter current password">
+                </div>
+                <div>
+                    <label for="newPassword" class="block text-sm font-medium text-gray-300 mb-2">New Password</label>
+                    <input type="password" id="newPassword" name="newPassword" required
+                           class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           placeholder="Enter new password">
+                </div>
+                <div>
+                    <label for="confirmPassword" class="block text-sm font-medium text-gray-300 mb-2">Confirm New Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" required
+                           class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           placeholder="Confirm new password">
+                </div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
+                    <i data-lucide="key" class="w-5 h-5 mr-2 inline"></i>
+                    Change Password
+                </button>
+            </form>
+        </div>
+
         <!-- VIP Signals Section -->
         <div id="vipSignalsSection" class="mb-8 hidden">
             <h2 class="text-2xl font-bold mb-4">VIP Signals</h2>
