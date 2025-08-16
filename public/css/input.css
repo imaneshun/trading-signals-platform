@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  body {
+    @apply bg-trading-dark text-white;
+  }
+}
+
+@layer components {
+  .trading-card {
+    @apply bg-trading-card border border-trading-border rounded-xl backdrop-blur-sm;
+  }
+  
+  .trading-button {
+    @apply px-6 py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105;
+  }
+  
+  .trading-button-primary {
+    @apply trading-button bg-gradient-to-r from-trading-accent to-primary-500 hover:from-primary-500 hover:to-trading-accent text-white shadow-lg hover:shadow-xl;
+  }
+  
+  .trading-button-secondary {
+    @apply trading-button bg-trading-card border border-trading-border hover:border-trading-accent text-white;
+  }
+  
+  .signal-card {
+    @apply trading-card p-6 hover:border-trading-accent transition-all duration-300;
+  }
+  
+  .signal-pair {
+    @apply text-2xl font-bold text-trading-accent group-hover:text-white transition-colors;
+  }
+  
+  .signal-price {
+    @apply font-mono text-lg;
+  }
+  
+  .signal-bull {
+    @apply text-trading-bull;
+  }
+  
+  .signal-bear {
+    @apply text-trading-bear;
+  }
+  
+  .navbar-glass {
+    @apply bg-trading-dark/80 backdrop-blur-md border-b border-trading-border;
+  }
+  
+  .hero-gradient {
+    @apply bg-gradient-to-br from-trading-dark via-trading-darker to-trading-card;
+  }
+  
+  .chart-pattern {
+    background-image: 
+      linear-gradient(45deg, rgba(0, 212, 170, 0.1) 25%, transparent 25%),
+      linear-gradient(-45deg, rgba(0, 212, 170, 0.1) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, rgba(0, 212, 170, 0.1) 75%),
+      linear-gradient(-45deg, transparent 75%, rgba(0, 212, 170, 0.1) 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+  }
+}

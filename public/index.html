@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Signals Platform - Professional Trading Signals</title>
+    <meta name="description" content="Get professional trading signals with high accuracy. Free and VIP signals available.">
+    <link rel="stylesheet" href="/css/output.css">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body class="font-trading antialiased">
+    <!-- Navigation -->
+    <nav class="navbar-glass sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-trading-accent to-primary-500 rounded-lg flex items-center justify-center">
+                        <i data-lucide="trending-up" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <span class="text-xl font-bold text-white">TradingSignals</span>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#home" class="nav-link text-white hover:text-trading-accent transition-colors">Home</a>
+                    <a href="#signals" class="nav-link text-white hover:text-trading-accent transition-colors">Signals</a>
+                    <a href="#vip" class="nav-link text-white hover:text-trading-accent transition-colors">VIP</a>
+                    <a href="#about" class="nav-link text-white hover:text-trading-accent transition-colors">About</a>
+                </div>
+
+                <!-- Auth Buttons -->
+                <div class="flex items-center space-x-4">
+                    <div id="auth-buttons" class="hidden md:flex items-center space-x-4">
+                        <button id="login-btn" class="trading-button-secondary text-sm">Login</button>
+                        <button id="register-btn" class="trading-button-primary text-sm">Get Started</button>
+                    </div>
+                    
+                    <div id="user-menu" class="hidden items-center space-x-4">
+                        <div class="flex items-center space-x-2">
+                            <div id="vip-badge" class="hidden px-3 py-1 bg-gradient-to-r from-yellow-400 to-yellow-600 text-black text-xs font-bold rounded-full">
+                                VIP
+                            </div>
+                            <span id="user-email" class="text-sm text-gray-300"></span>
+                        </div>
+                        <button id="logout-btn" class="trading-button-secondary text-sm">Logout</button>
+                    </div>
+
+                    <!-- Mobile menu button -->
+                    <button id="mobile-menu-btn" class="md:hidden text-white">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-trading-card border-t border-trading-border">
+            <div class="px-4 py-4 space-y-4">
+                <a href="#home" class="block text-white hover:text-trading-accent">Home</a>
+                <a href="#signals" class="block text-white hover:text-trading-accent">Signals</a>
+                <a href="#vip" class="block text-white hover:text-trading-accent">VIP</a>
+                <a href="#about" class="block text-white hover:text-trading-accent">About</a>
+                <div class="pt-4 border-t border-trading-border">
+                    <button id="mobile-login-btn" class="w-full trading-button-secondary mb-2">Login</button>
+                    <button id="mobile-register-btn" class="w-full trading-button-primary">Get Started</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section id="home" class="hero-gradient min-h-screen flex items-center relative overflow-hidden">
+            <div class="chart-pattern absolute inset-0 opacity-20"></div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-center">
+                    <h1 class="text-5xl md:text-7xl font-bold text-white mb-6 animate-fade-in">
+                        Professional
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-trading-accent to-primary-500">
+                            Trading Signals
+                        </span>
+                    </h1>
+                    <p class="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto animate-slide-up">
+                        Get high-accuracy trading signals from professional traders. 
+                        Start with free signals or upgrade to VIP for exclusive opportunities.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center animate-slide-up">
+                        <button id="hero-signals-btn" class="trading-button-primary text-lg px-8 py-4">
+                            <i data-lucide="trending-up" class="w-5 h-5 mr-2 inline"></i>
+                            View Free Signals
+                        </button>
+                        <button id="hero-vip-btn" class="trading-button-secondary text-lg px-8 py-4">
+                            <i data-lucide="crown" class="w-5 h-5 mr-2 inline"></i>
+                            Upgrade to VIP
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="trading-card p-6 text-center animate-fade-in">
+                        <div class="text-3xl font-bold text-trading-accent mb-2">85%</div>
+                        <div class="text-gray-300">Success Rate</div>
+                    </div>
+                    <div class="trading-card p-6 text-center animate-fade-in">
+                        <div class="text-3xl font-bold text-trading-accent mb-2">1000+</div>
+                        <div class="text-gray-300">Active Traders</div>
+                    </div>
+                    <div class="trading-card p-6 text-center animate-fade-in">
+                        <div class="text-3xl font-bold text-trading-accent mb-2">24/7</div>
+                        <div class="text-gray-300">Market Coverage</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Signals Section -->
+        <section id="signals" class="py-20 bg-trading-darker">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl font-bold text-white mb-4">Latest Trading Signals</h2>
+                    <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+                        Get real-time trading signals with detailed entry points, targets, and stop losses.
+                    </p>
+                </div>
+
+                <!-- Signal Filters -->
+                <div class="flex justify-center mb-8">
+                    <div class="trading-card p-2 flex space-x-2">
+                        <button id="filter-all" class="filter-btn active px-4 py-2 rounded-lg font-medium transition-all">All</button>
+                        <button id="filter-free" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all">Free</button>
+                        <button id="filter-vip" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all">VIP</button>
+                    </div>
+                </div>
+
+                <!-- Signals Grid -->
+                <div id="signals-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Signals will be loaded here -->
+                </div>
+
+                <!-- Loading State -->
+                <div id="signals-loading" class="text-center py-12">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-trading-accent mx-auto"></div>
+                    <p class="text-gray-300 mt-4">Loading signals...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIP Section -->
+        <section id="vip" class="py-20 bg-trading-dark">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl font-bold text-white mb-4">
+                        <i data-lucide="crown" class="w-10 h-10 text-yellow-400 inline mr-3"></i>
+                        VIP Membership
+                    </h2>
+                    <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+                        Unlock exclusive trading signals with higher accuracy and priority support.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <!-- VIP Features -->
+                    <div>
+                        <div class="space-y-6">
+                            <div class="flex items-start space-x-4">
+                                <div class="w-12 h-12 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i data-lucide="zap" class="w-6 h-6 text-black"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-semibold text-white mb-2">Exclusive Signals</h3>
+                                    <p class="text-gray-300">Access to premium trading signals with higher profit potential and detailed analysis.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start space-x-4">
+                                <div class="w-12 h-12 bg-gradient-to-br from-trading-accent to-primary-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i data-lucide="clock" class="w-6 h-6 text-white"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-semibold text-white mb-2">Early Access</h3>
+                                    <p class="text-gray-300">Get signals before they're released to free users, giving you a competitive edge.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start space-x-4">
+                                <div class="w-12 h-12 bg-gradient-to-br from-success-500 to-success-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i data-lucide="trending-up" class="w-6 h-6 text-white"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-semibold text-white mb-2">Higher Success Rate</h3>
+                                    <p class="text-gray-300">VIP signals have a proven track record of 90%+ success rate with detailed risk management.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- VIP Activation -->
+                    <div class="trading-card p-8">
+                        <div class="text-center mb-6">
+                            <h3 class="text-2xl font-bold text-white mb-2">Activate VIP Access</h3>
+                            <p class="text-gray-300">Enter your VIP activation code to unlock premium features.</p>
+                        </div>
+
+                        <form id="vip-activation-form" class="space-y-4">
+                            <div>
+                                <label for="vip-code" class="block text-sm font-medium text-gray-300 mb-2">VIP Code</label>
+                                <input type="text" id="vip-code" name="vip-code" 
+                                       class="w-full px-4 py-3 bg-trading-darker border border-trading-border rounded-lg text-white placeholder-gray-500 focus:border-trading-accent focus:outline-none"
+                                       placeholder="Enter your VIP activation code">
+                            </div>
+                            <button type="submit" class="w-full trading-button-primary">
+                                <i data-lucide="unlock" class="w-5 h-5 mr-2 inline"></i>
+                                Activate VIP Access
+                            </button>
+                        </form>
+
+                        <div class="mt-6 text-center">
+                            <p class="text-sm text-gray-400">
+                                Don't have a VIP code? 
+                                <a href="#contact" class="text-trading-accent hover:underline">Contact us</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="py-20 bg-trading-darker">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl font-bold text-white mb-4">Why Choose Our Signals?</h2>
+                    <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+                        Professional trading signals backed by years of market experience and advanced analysis.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="trading-card p-6 text-center">
+                        <div class="w-16 h-16 bg-gradient-to-br from-trading-accent to-primary-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="target" class="w-8 h-8 text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-3">Precise Entry Points</h3>
+                        <p class="text-gray-300">Every signal includes exact entry prices, multiple targets, and stop-loss levels for optimal risk management.</p>
+                    </div>
+
+                    <div class="trading-card p-6 text-center">
+                        <div class="w-16 h-16 bg-gradient-to-br from-success-500 to-success-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="shield-check" class="w-8 h-8 text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-3">Risk Management</h3>
+                        <p class="text-gray-300">All signals come with proper risk-reward ratios and money management guidelines to protect your capital.</p>
+                    </div>
+
+                    <div class="trading-card p-6 text-center">
+                        <div class="w-16 h-16 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="clock" class="w-8 h-8 text-black"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-3">Timely Delivery</h3>
+                        <p class="text-gray-300">Signals are delivered in real-time through our platform with instant notifications for time-sensitive opportunities.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-trading-card border-t border-trading-border py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <div class="flex items-center justify-center space-x-3 mb-4">
+                    <div class="w-10 h-10 bg-gradient-to-br from-trading-accent to-primary-500 rounded-lg flex items-center justify-center">
+                        <i data-lucide="trending-up" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <span class="text-xl font-bold text-white">TradingSignals</span>
+                </div>
+                <p class="text-gray-400 mb-4">Professional trading signals for serious traders</p>
+                <p class="text-sm text-gray-500">© 2024 TradingSignals Platform. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <!-- Login Modal -->
+    <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 hidden items-center justify-center">
+        <div class="trading-card p-8 m-4 max-w-md w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-white">Login</h2>
+                <button id="close-login-modal" class="text-gray-400 hover:text-white">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label for="login-email" class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                    <input type="email" id="login-email" name="email" required
+                           class="w-full px-4 py-3 bg-trading-darker border border-trading-border rounded-lg text-white placeholder-gray-500 focus:border-trading-accent focus:outline-none">
+                </div>
+                <div>
+                    <label for="login-password" class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                    <input type="password" id="login-password" name="password" required
+                           class="w-full px-4 py-3 bg-trading-darker border border-trading-border rounded-lg text-white placeholder-gray-500 focus:border-trading-accent focus:outline-none">
+                </div>
+                <button type="submit" class="w-full trading-button-primary">Login</button>
+            </form>
+            
+            <p class="text-center text-sm text-gray-400 mt-4">
+                Don't have an account? 
+                <button id="switch-to-register" class="text-trading-accent hover:underline">Sign up</button>
+            </p>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="register-modal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 hidden items-center justify-center">
+        <div class="trading-card p-8 m-4 max-w-md w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-white">Sign Up</h2>
+                <button id="close-register-modal" class="text-gray-400 hover:text-white">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <form id="register-form" class="space-y-4">
+                <div>
+                    <label for="register-email" class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                    <input type="email" id="register-email" name="email" required
+                           class="w-full px-4 py-3 bg-trading-darker border border-trading-border rounded-lg text-white placeholder-gray-500 focus:border-trading-accent focus:outline-none">
+                </div>
+                <div>
+                    <label for="register-password" class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                    <input type="password" id="register-password" name="password" required
+                           class="w-full px-4 py-3 bg-trading-darker border border-trading-border rounded-lg text-white placeholder-gray-500 focus:border-trading-accent focus:outline-none">
+                </div>
+                <div>
+                    <label for="register-confirm-password" class="block text-sm font-medium text-gray-300 mb-2">Confirm Password</label>
+                    <input type="password" id="register-confirm-password" name="confirm-password" required
+                           class="w-full px-4 py-3 bg-trading-darker border border-trading-border rounded-lg text-white placeholder-gray-500 focus:border-trading-accent focus:outline-none">
+                </div>
+                <button type="submit" class="w-full trading-button-primary">Create Account</button>
+            </form>
+            
+            <p class="text-center text-sm text-gray-400 mt-4">
+                Already have an account? 
+                <button id="switch-to-login" class="text-trading-accent hover:underline">Login</button>
+            </p>
+        </div>
+    </div>
+
+    <!-- Admin Panel Link (Hidden by default) -->
+    <div id="admin-link" class="fixed bottom-4 right-4 hidden">
+        <a href="/admin.html" class="trading-button-primary">
+            <i data-lucide="settings" class="w-5 h-5 mr-2 inline"></i>
+            Admin Panel
+        </a>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/main.js"></script>
+</body>
+</html>

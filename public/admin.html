@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Trading Signals Platform</title>
+    <link rel="stylesheet" href="/css/output.css">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body class="font-trading antialiased bg-trading-dark text-white">
+    <!-- Navigation -->
+    <nav class="navbar-glass border-b border-trading-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-trading-accent to-primary-500 rounded-lg flex items-center justify-center">
+                        <i data-lucide="shield" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <span class="text-xl font-bold text-white">Admin Panel</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span id="admin-email" class="text-sm text-gray-300"></span>
+                    <a href="/" class="trading-button-secondary text-sm">
+                        <i data-lucide="home" class="w-4 h-4 mr-2 inline"></i>
+                        Back to Site
+                    </a>
+                    <button id="admin-logout" class="trading-button-secondary text-sm">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Tab Navigation -->
+        <div class="mb-8">
+            <div class="trading-card p-2 flex space-x-2">
+                <button id="tab-signals" class="tab-btn active px-4 py-2 rounded-lg font-medium transition-all">Signals</button>
+                <button id="tab-vip-codes" class="tab-btn px-4 py-2 rounded-lg font-medium transition-all">VIP Codes</button>
+                <button id="tab-settings" class="tab-btn px-4 py-2 rounded-lg font-medium transition-all">Settings</button>
+                <button id="tab-analytics" class="tab-btn px-4 py-2 rounded-lg font-medium transition-all">Analytics</button>
+            </div>
+        </div>
+
+        <!-- Signals Tab -->
+        <div id="signals-tab" class="tab-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-white">Manage Signals</h2>
+                <button id="add-signal-btn" class="trading-button-primary">
+                    <i data-lucide="plus" class="w-5 h-5 mr-2 inline"></i>
+                    Add Signal
+                </button>
+            </div>
+
+            <!-- Signals Table -->
+            <div class="trading-card overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-trading-darker">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Pair</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Entry</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Targets</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Stop Loss</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Type</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Published</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="signals-table-body" class="divide-y divide-trading-border">
+                            <!-- Signals will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIP Codes Tab -->
+        <div id="vip-codes-tab" class="tab-content hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-white">VIP Codes Management</h2>
+                <button id="generate-codes-btn" class="trading-button-primary">
+                    <i data-lucide="key" class="w-5 h-5 mr-2 inline"></i>
+                    Generate Codes
+                </button>
+            </div>
+
+            <!-- VIP Codes Table -->
+            <div class="trading-card overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-trading-darker">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Code</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Duration</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Used By</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Used At</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Created</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vip-codes-table-body" class="divide-y divide-trading-border">
+                            <!-- VIP codes will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings-tab" class="tab-content hidden">
+            <h2 class="text-2xl font-bold text-white mb-6">Platform Settings</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- VIP Pricing -->
+                <div class="trading-card p-6">
+                    <h3 class="text-xl font-semibold text-white mb-4">VIP Pricing</h3>
+                    <form id="settings-form">
+                        <div class="mb-4">
+                            <label for="vip-price" class="block text-sm font-medium text-gray-300 mb-2">VIP Price ($)</label>
+                            <input type="number" id="vip-price" name="vip-price" step="0.01" min="0"
+                                   class="w-full px-4 py-3 bg-trading-darker border border-trading-border rounded-lg text-white placeholder-gray-500 focus:border-trading-accent focus:outline-none">
+                        </div>
+                        <button type="submit" class="trading-button-primary">
+                            <i data-lucide="save" class="w-5 h-5 mr-2 inline"></i>
+                            Save Settings
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Platform Stats -->
+                <div class="trading-card p-6">
+                    <h3 class="text-xl font-semibold text-white mb-4">Platform Statistics</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-300">Total Signals</span>
+                            <span id="stat-total-signals" class="text-trading-accent font-semibold">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-300">Active Signals</span>
+                            <span id="stat-active-signals" class="text-trading-accent font-semibold">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-300">VIP Signals</span>
+                            <span id="stat-vip-signals" class="text-trading-accent font-semibold">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-300">Generated Codes</span>
+                            <span id="stat-total-codes" class="text-trading-accent font-semibold">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-300">Used Codes</span>
+                            <span id="stat-used-codes" class="text-trading-accent font-semibold">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div id="analytics-tab" class="tab-content hidden">
+            <h2 class="text-2xl font-bold text-white mb-6">Analytics Dashboard</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="trading-card p-6">
+                    <h3 class="text-xl font-semibold text-white mb-4">Signal Performance</h3>
+                    <div class="text-center text-gray-400">
+                        <i data-lucide="bar-chart-3" class="w-16 h-16 mx-auto mb-4 opacity-50"></i>
+                        <p>Analytics coming soon...</p>
+                    </div>
+                </div>
+                
+                <div class="trading-card p-6">
+                    <h3 class="text-xl font-semibold text-white mb-4">User Growth</h3>
+                    <div class="text-center text-gray-400">
+                        <i data-lucide="trending-up" class="w-16 h-16 mx-auto mb-4 opacity-50"></i>
+                        <p>Analytics coming soon...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Signal Modal -->
+    <div id="signal-modal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 hidden items-center justify-center">
+        <div class="trading-card p-8 m-4 max-w-2xl w-full max-h-screen overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="signal-modal-title" class="text-2xl font-bold text-white">Add Signal</h2>
+                <button id="close-signal-modal" class="text-gray-400 hover:text-white">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <form id="signal-form" class="space-y-4">
+                <input type="hidden" id="signal-id" name="signal-id">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="signal-pair" class="block text-sm font-medium text-gray-300 mb-2">Trading Pair *</label>
+                        <input type="text" id="signal-pair" name="pair" required
+                               placeholder="e.g., BTC/USDT"
+                               class="w-full px-4 py-3 bg-trading-darker border border-trading-border rounded-lg text-white placeholder-gray-500 focus:border-trading-accent focus:outline-none">
+                    </div>
+                    
+                    <div>
+                        <label for="signal-entry" class="block text-sm font-medium text-gray-300 mb-2">Entry Price *</label>
+                        <input type="number" id="signal-entry" name="entry_price" step="0.00001" required
+                               class="w-full px-4 py-3 bg-trading-darker border border-trading-border rounded-lg text-white placeholder-gray-500 focus:border-trading-accent focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="signal-target1" class="block text-sm font-medium text-gray-300 mb-2">Target 1</label>
+                        <input type="number" id="signal-target1" name="target_1" step="0.00001"
+                               class="w-full px-4 py-3 bg-trading-darker border border-trading-border rounded-lg text-white placeholder-gray-500 focus:border-trading-accent focus:outline-none">
+                    </div>
+                    
+                    <div>
+                        <label for="signal-target2" class="block text-sm font-medium text-gray-300 mb-2">Target 2</label>
+                        <input type="number" id="signal-target2" name="target_2" step="0.00001"
+                               class="w-full px-4 py-3 bg-trading-darker border border-trading-border rounded-lg text-white placeholder-gray-500 focus:border-trading-accent focus:outline-none">
+                    </div>
+                    
+                    <div>
+                        <label for="signal-target3" class="block text-sm font-medium text-gray-300 mb-2">Target 3</label>
+                        <input type="number" id="signal-target3" name="target_3" step="0.00001"
+                               class="w-full px-4 py-3 bg-trading-darker border border-trading-border rounded-lg text-white placeholder-gray-500 focus:border-trading-accent focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="signal-stop-loss" class="block text-sm font-medium text-gray-300 mb-2">Stop Loss *</label>
+                        <input type="number" id="signal-stop-loss" name="stop_loss" step="0.00001" required
+                               class="w-full px-4 py-3 bg-trading-darker border border-trading-border rounded-lg text-white placeholder-gray-500 focus:border-trading-accent focus:outline-none">
+                    </div>
+                    
+                    <div>
+                        <label for="signal-type" class="block text-sm font-medium text-gray-300 mb-2">Signal Type</label>
+                        <select id="signal-type" name="signal_type"
+                                class="w-full px-4 py-3 bg-trading-darker border border-trading-border rounded-lg text-white focus:border-trading-accent focus:outline-none">
+                            <option value="free">Free</option>
+                            <option value="vip">VIP</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="signal-status" class="block text-sm font-medium text-gray-300 mb-2">Status</label>
+                        <select id="signal-status" name="status"
+                                class="w-full px-4 py-3 bg-trading-darker border border-trading-border rounded-lg text-white focus:border-trading-accent focus:outline-none">
+                            <option value="active">Active</option>
+                            <option value="closed">Closed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="signal-scheduled" class="block text-sm font-medium text-gray-300 mb-2">Schedule For Later</label>
+                        <input type="datetime-local" id="signal-scheduled" name="scheduled_at"
+                               class="w-full px-4 py-3 bg-trading-darker border border-trading-border rounded-lg text-white focus:border-trading-accent focus:outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="signal-description" class="block text-sm font-medium text-gray-300 mb-2">Description/Analysis</label>
+                    <textarea id="signal-description" name="description" rows="3"
+                              placeholder="Optional analysis or description for this signal"
+                              class="w-full px-4 py-3 bg-trading-darker border border-trading-border rounded-lg text-white placeholder-gray-500 focus:border-trading-accent focus:outline-none"></textarea>
+                </div>
+
+                <div class="flex space-x-4">
+                    <button type="submit" class="trading-button-primary flex-1">
+                        <i data-lucide="save" class="w-5 h-5 mr-2 inline"></i>
+                        Save Signal
+                    </button>
+                    <button type="button" id="cancel-signal" class="trading-button-secondary">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Generate VIP Codes Modal -->
+    <div id="vip-codes-modal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 hidden items-center justify-center">
+        <div class="trading-card p-8 m-4 max-w-md w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-white">Generate VIP Codes</h2>
+                <button id="close-vip-codes-modal" class="text-gray-400 hover:text-white">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <form id="vip-codes-form" class="space-y-4">
+                <div>
+                    <label for="code-duration" class="block text-sm font-medium text-gray-300 mb-2">Duration (Days) *</label>
+                    <input type="number" id="code-duration" name="duration_days" min="1" value="30" required
+                           class="w-full px-4 py-3 bg-trading-darker border border-trading-border rounded-lg text-white placeholder-gray-500 focus:border-trading-accent focus:outline-none">
+                </div>
+                
+                <div>
+                    <label for="code-quantity" class="block text-sm font-medium text-gray-300 mb-2">Quantity</label>
+                    <input type="number" id="code-quantity" name="quantity" min="1" max="100" value="1"
+                           class="w-full px-4 py-3 bg-trading-darker border border-trading-border rounded-lg text-white placeholder-gray-500 focus:border-trading-accent focus:outline-none">
+                </div>
+                
+                <div>
+                    <label for="code-expires" class="block text-sm font-medium text-gray-300 mb-2">Code Expires At (Optional)</label>
+                    <input type="datetime-local" id="code-expires" name="expires_at"
+                           class="w-full px-4 py-3 bg-trading-darker border border-trading-border rounded-lg text-white focus:border-trading-accent focus:outline-none">
+                </div>
+
+                <div class="flex space-x-4">
+                    <button type="submit" class="trading-button-primary flex-1">
+                        <i data-lucide="key" class="w-5 h-5 mr-2 inline"></i>
+                        Generate Codes
+                    </button>
+                    <button type="button" id="cancel-vip-codes" class="trading-button-secondary">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/admin.js"></script>
+</body>
+</html>
