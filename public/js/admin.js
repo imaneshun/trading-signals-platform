@@ -534,33 +534,33 @@ class AdminPanel {
     async handleContactUpdate(e) {
         e.preventDefault();
         const formData = new FormData(e.target);
-        const contactData = {};
+        const walletData = {};
         
-        const contactMethod = formData.get('contact-method');
-        const contactValue = formData.get('contact-value');
+        const btcAddress = formData.get('btcAddress');
+        const ethAddress = formData.get('ethAddress');
+        const usdtAddress = formData.get('usdtAddress');
+        const bnbAddress = formData.get('bnbAddress');
+        const tonAddress = formData.get('tonAddress');
         
-        if (contactMethod) {
-            contactData.contact_method = contactMethod;
-        }
-        
-        if (contactValue) {
-            contactData.contact_value = contactValue;
-        }
+        if (btcAddress) walletData.btc_address = btcAddress;
+        if (ethAddress) walletData.eth_address = ethAddress;
+        if (usdtAddress) walletData.usdt_address = usdtAddress;
+        if (bnbAddress) walletData.bnb_address = bnbAddress;
+        if (tonAddress) walletData.ton_address = tonAddress;
 
         try {
-            const response = await this.fetchWithAuth('/api/admin/settings', {
+            const response = await this.fetchWithAuth('/api/admin/wallets', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(contactData)
+                body: JSON.stringify(walletData)
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                this.showNotification('Contact information updated successfully!', 'success');
-                this.settings = { ...this.settings, ...contactData };
+                this.showNotification('Wallet addresses updated successfully!', 'success');
             } else {
-                this.showNotification(data.error || 'Failed to update contact info', 'error');
+                this.showNotification(data.error || 'Failed to update wallet addresses', 'error');
             }
         } catch (error) {
             console.error('Error updating contact info:', error);

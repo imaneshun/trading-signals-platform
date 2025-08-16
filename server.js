@@ -254,6 +254,14 @@ app.post('/api/investment/create', async (req, res) => {
       return res.status(400).json({ error: `${paymentMethod} wallet address not configured. Please contact admin.` });
     }
 
+    const walletUpdates = {
+      btc_address,
+      eth_address, 
+      usdt_address,
+      bnb_address,
+      ton_address
+    };
+
     const paymentInfo = {
       method: paymentMethod,
       address: walletRows[0].value,
@@ -514,6 +522,39 @@ app.post('/api/admin/vip-codes', authenticateToken, requireAdmin, async (req, re
   } catch (err) {
     console.error('Generate VIP codes error:', err);
     return res.status(500).json({ error: 'Failed to generate VIP codes' });
+  }
+});
+
+// Admin wallet addresses endpoint
+app.put('/api/admin/wallets', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { btc_address, eth_address, usdt_address, bnb_address, ton_address } = req.body;
+    console.log('Received wallet update:', req.body);
+    
+    const walletUpdates = {
+      btc_address,
+      eth_address, 
+      usdt_address,
+      bnb_address,
+      ton_address
+    };
+    
+    for (const [key, value] of Object.entries(walletUpdates)) {
+      if (value !== undefined && value !== null && value !== '') {
+        console.log(`Updating wallet: ${key} = ${value}`);
+        await query(`
+          INSERT INTO settings (key, value, updated_at) 
+          VALUES ($1, $2, CURRENT_TIMESTAMP)
+          ON CONFLICT (key) 
+          DO UPDATE SET value = EXCLUDED.value, updated_at = EXCLUDED.updated_at`,
+          [key, value.toString()]);
+      }
+    }
+    
+    res.json({ message: 'Wallet addresses updated successfully' });
+  } catch (err) {
+    console.error('Wallet update error:', err);
+    return res.status(500).json({ error: 'Failed to update wallet addresses' });
   }
 });
 
