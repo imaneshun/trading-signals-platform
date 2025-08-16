@@ -98,70 +98,55 @@ class InvestmentManager {
                 body: JSON.stringify({
                     email,
                     password,
-                    amount,
+                    amount: parseFloat(amount),
                     paymentMethod
-                }),
+                })
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                // Store auth token and user data
+                this.showNotification('Payment details generated successfully!', 'success');
+                
+                // Show payment information
+                this.displayPaymentInfo(data.paymentInfo, data.contactInfo, amount, paymentMethod);
+                
+                // Store user data
                 localStorage.setItem('auth_token', data.token);
                 localStorage.setItem('user_data', JSON.stringify(data.user));
                 
-                this.showPaymentInfo(data.paymentInfo, data.contactInfo);
-                this.showNotification('Investment account created! Please complete payment.', 'success');
             } else {
-                this.showNotification(data.error || 'Failed to create investment', 'error');
+                this.showNotification(data.error || 'Failed to generate payment details', 'error');
             }
         } catch (error) {
-            console.error('Investment creation error:', error);
+            console.error('Payment generation error:', error);
             this.showNotification('Network error. Please try again.', 'error');
         }
     }
 
-    showPaymentInfo(paymentInfo, contactInfo) {
+    displayPaymentInfo(paymentInfo, contactInfo, amount, paymentMethod) {
         const paymentInfoDiv = document.getElementById('paymentInfo');
-        const paymentDetails = document.getElementById('paymentDetails');
-        const contactInfoDiv = document.getElementById('contactInfo');
-
-        if (!paymentInfoDiv || !paymentDetails || !contactInfoDiv) return;
-
-        // Show payment details
-        paymentDetails.innerHTML = `
-            <div class="bg-gray-700 p-4 rounded-lg">
-                <h4 class="font-semibold mb-2">Send Payment To:</h4>
-                <div class="space-y-2">
-                    <div>
-                        <span class="text-gray-400">Method:</span>
-                        <span class="font-mono">${paymentInfo.method}</span>
-                    </div>
-                    <div>
-                        <span class="text-gray-400">Address:</span>
-                        <span class="font-mono text-sm break-all">${paymentInfo.address}</span>
-                    </div>
-                    <div>
-                        <span class="text-gray-400">Amount:</span>
-                        <span class="font-semibold text-green-400">${paymentInfo.amount} USDT</span>
-                    </div>
-                </div>
-                <button onclick="copyToClipboard('${paymentInfo.address}')" 
-                        class="mt-2 bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm">
-                    Copy Address
-                </button>
-            </div>
-        `;
-
-        // Show contact info
-        contactInfoDiv.innerHTML = `
-            <div class="flex items-center space-x-2">
-                <i data-lucide="${contactInfo.method === 'telegram' ? 'send' : 'phone'}" class="w-4 h-4"></i>
-                <span>${contactInfo.method === 'telegram' ? 'Telegram:' : 'WhatsApp:'}</span>
-                <span class="font-mono">${contactInfo.value}</span>
-            </div>
-        `;
-
+        
+        // Update payment amount and wallet address
+        document.getElementById('paymentAmount').textContent = `${amount} ${paymentMethod}`;
+        document.getElementById('walletAddress').value = paymentInfo.address;
+        
+        // Update contact info
+        const supportContact = document.getElementById('supportContact');
+        if (supportContact && contactInfo) {
+            const contactMethod = contactInfo.method || 'telegram';
+            const contactValue = contactInfo.value || '@tradingsignals';
+            
+            if (contactMethod === 'telegram') {
+                supportContact.innerHTML = `<a href="https://t.me/${contactValue.replace('@', '')}" target="_blank" class="text-blue-400 hover:text-blue-300">Telegram: ${contactValue}</a>`;
+            } else if (contactMethod === 'whatsapp') {
+                supportContact.innerHTML = `<a href="https://wa.me/${contactValue}" target="_blank" class="text-green-400 hover:text-green-300">WhatsApp: ${contactValue}</a>`;
+            } else {
+                supportContact.innerHTML = `<span class="text-gray-300">${contactMethod}: ${contactValue}</span>`;
+            }
+        }
+        
+        // Show payment info section
         paymentInfoDiv.classList.remove('hidden');
         
         // Scroll to payment info
@@ -260,6 +245,38 @@ function copyToClipboard(text) {
             }, 2000);
         }
     });
+}
+
+// Global functions for wallet integration
+function openWallet() {
+    const paymentMethod = document.getElementById('paymentMethod').value;
+    const amount = document.getElementById('paymentAmount').textContent;
+    const address = document.getElementById('walletAddress').value;
+    
+    // Create deep links for different wallets
+    const walletLinks = {
+        'BTC': `bitcoin:${address}?amount=${amount.split(' ')[0]}`,
+        'ETH': `ethereum:${address}@1?value=${amount.split(' ')[0]}e18`,
+        'USDT': `tron:${address}?amount=${amount.split(' ')[0]}&token=TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t`,
+        'BNB': `binance:${address}?amount=${amount.split(' ')[0]}`,
+        'TON': `ton://transfer/${address}?amount=${amount.split(' ')[0]}`
+    };
+    
+    const deepLink = walletLinks[paymentMethod];
+    
+    if (deepLink) {
+        // Try to open wallet app
+        window.location.href = deepLink;
+        
+        // Fallback: show instructions
+        setTimeout(() => {
+            alert(`If your wallet didn't open automatically:\n\n1. Open your ${paymentMethod} wallet app\n2. Send ${amount} to:\n${address}\n\nAddress copied to clipboard!`);
+            copyToClipboard('walletAddress');
+        }, 1000);
+    } else {
+        alert(`Please open your ${paymentMethod} wallet and send ${amount} to:\n${address}\n\nAddress copied to clipboard!`);
+        copyToClipboard('walletAddress');
+    }
 }
 
 // Initialize investment manager when DOM is loaded

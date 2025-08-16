@@ -102,16 +102,63 @@
                 
                 <button type="submit" 
                         class="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 transform hover:scale-105">
-                    Start Investment
+                    Get Payment Details
                 </button>
             </form>
         </div>
 
         <!-- Payment Information -->
         <div id="paymentInfo" class="bg-gray-800 rounded-lg p-8 max-w-2xl mx-auto mt-8 hidden">
-            <h3 class="text-xl font-bold mb-4">Payment Information</h3>
-            <div id="paymentDetails" class="space-y-4">
+            <h3 class="text-xl font-bold mb-4">Complete Your Payment</h3>
+            <div id="paymentDetails" class="space-y-6">
                 <!-- Payment details will be populated here -->
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <h4 class="text-lg font-semibold mb-2">Payment Instructions</h4>
+                    <p class="text-gray-300 mb-4">Send exactly <span id="paymentAmount" class="text-green-400 font-bold"></span> to the wallet address below:</p>
+                    
+                    <div class="bg-gray-900 p-4 rounded border">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Wallet Address:</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="text" id="walletAddress" readonly 
+                                   class="flex-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white font-mono text-sm">
+                            <button type="button" onclick="copyToClipboard('walletAddress')" 
+                                    class="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-white text-sm">
+                                Copy
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 p-4 bg-yellow-900 border border-yellow-600 rounded">
+                        <div class="flex items-start">
+                            <i data-lucide="alert-triangle" class="w-5 h-5 text-yellow-400 mr-2 mt-0.5"></i>
+                            <div>
+                                <p class="text-yellow-200 text-sm font-medium">Important:</p>
+                                <ul class="text-yellow-300 text-sm mt-1 space-y-1">
+                                    <li>• Send the exact amount shown above</li>
+                                    <li>• Use the correct network (TRC20 for USDT)</li>
+                                    <li>• Your investment will be activated after payment confirmation</li>
+                                    <li>• Contact support if you have any issues</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 text-center">
+                        <button type="button" onclick="openWallet()" 
+                                class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300">
+                            <i data-lucide="wallet" class="w-5 h-5 mr-2 inline"></i>
+                            Open Wallet App
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="contactInfo" class="bg-gray-700 p-4 rounded-lg">
+                    <h4 class="text-lg font-semibold mb-2">Need Help?</h4>
+                    <p class="text-gray-300 mb-2">Contact our support team:</p>
+                    <div id="supportContact" class="text-blue-400">
+                        <!-- Contact info will be loaded here -->
+                    </div>
+                </div>
             </div>
             
             <!-- Contact Information -->
