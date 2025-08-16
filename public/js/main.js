@@ -42,7 +42,15 @@ class TradingSignalsPlatform {
         });
         
         document.getElementById('hero-vip-btn')?.addEventListener('click', () => {
-            this.scrollToSection('vip');
+            window.location.href = '/vip';
+        });
+        
+        document.getElementById('hero-investment-btn')?.addEventListener('click', () => {
+            window.location.href = '/investment';
+        });
+        
+        document.getElementById('hero-dashboard-btn')?.addEventListener('click', () => {
+            window.location.href = '/dashboard';
         });
 
         // Signal filters
@@ -151,17 +159,22 @@ class TradingSignalsPlatform {
     // Authentication Methods
     checkAuthStatus() {
         const token = localStorage.getItem('auth_token');
-        const user = localStorage.getItem('user_data');
+        const userData = localStorage.getItem('user_data');
         
-        if (token && user) {
+        if (token && userData) {
             try {
-                this.currentUser = JSON.parse(user);
+                this.currentUser = JSON.parse(userData);
                 this.updateUIForAuthenticatedUser();
+                this.showDashboardButton();
             } catch (error) {
                 console.error('Error parsing user data:', error);
-                this.logout();
+                localStorage.removeItem('auth_token');
+                localStorage.removeItem('user_data');
             }
         }
+        
+        // Load payment methods and contact info for home page display
+        this.loadHomePageInfo();
     }
 
     updateUIForAuthenticatedUser() {
@@ -170,23 +183,26 @@ class TradingSignalsPlatform {
         const userEmail = document.getElementById('user-email');
         const vipBadge = document.getElementById('vip-badge');
         const adminLink = document.getElementById('admin-link');
-
+        
         if (authButtons) authButtons.classList.add('hidden');
-        if (userMenu) {
-            userMenu.classList.remove('hidden');
-            userMenu.classList.add('flex');
-        }
+        if (userMenu) userMenu.classList.remove('hidden');
         if (userEmail) userEmail.textContent = this.currentUser.email;
-
+        
         // Show VIP badge if user has VIP access
-        if (this.currentUser.vip_status === 'vip' && this.isVipActive()) {
-            if (vipBadge) vipBadge.classList.remove('hidden');
+        if (this.currentUser.vip_expires_at) {
+            const expiryDate = new Date(this.currentUser.vip_expires_at);
+            const now = new Date();
+            if (expiryDate > now && vipBadge) {
+                vipBadge.classList.remove('hidden');
+            }
         }
-
+        
         // Show admin link if user is admin
-        if (this.currentUser.is_admin && adminLink) {
+        if (this.currentUser.isAdmin && adminLink) {
             adminLink.classList.remove('hidden');
         }
+        
+        this.showDashboardButton();
     }
 
     isVipActive() {
@@ -313,17 +329,87 @@ class TradingSignalsPlatform {
         const userMenu = document.getElementById('user-menu');
         const vipBadge = document.getElementById('vip-badge');
         const adminLink = document.getElementById('admin-link');
-
+        
         if (authButtons) authButtons.classList.remove('hidden');
-        if (userMenu) {
-            userMenu.classList.add('hidden');
-            userMenu.classList.remove('flex');
-        }
+        if (userMenu) userMenu.classList.add('hidden');
         if (vipBadge) vipBadge.classList.add('hidden');
         if (adminLink) adminLink.classList.add('hidden');
-
+        
+        this.hideDashboardButton();
         this.showNotification('Logged out successfully', 'success');
-        this.loadSignals(); // Reload signals to hide VIP ones
+        
+        // Reload signals to show only free signals
+        this.loadSignals();
+    }
+
+    showDashboardButton() {
+        const dashboardBtn = document.getElementById('hero-dashboard-btn');
+        if (dashboardBtn) {
+            dashboardBtn.classList.remove('hidden');
+            dashboardBtn.style.display = 'inline-flex';
+        }
+    }
+
+    hideDashboardButton() {
+        const dashboardBtn = document.getElementById('hero-dashboard-btn');
+        if (dashboardBtn) {
+            dashboardBtn.classList.add('hidden');
+            dashboardBtn.style.display = 'none';
+        }
+    }
+
+    async loadHomePageInfo() {
+        try {
+            // Load payment methods for display
+            const paymentResponse = await fetch('/api/payment-methods');
+            if (paymentResponse.ok) {
+                const paymentData = await paymentResponse.json();
+                this.displayPaymentMethods(paymentData.paymentMethods);
+            }
+
+            // Load contact info for display
+            const contactResponse = await fetch('/api/settings/contact');
+            if (contactResponse.ok) {
+                const contactData = await contactResponse.json();
+                this.displayContactInfo(contactData);
+            }
+        } catch (error) {
+            console.error('Error loading home page info:', error);
+        }
+    }
+
+    displayPaymentMethods(methods) {
+        const container = document.getElementById('payment-methods-list');
+        if (!container || !methods) return;
+
+        const activeMethods = methods.filter(method => method.is_active);
+        container.innerHTML = activeMethods.map(method => `
+            <div class="flex items-center space-x-2 text-sm text-gray-300">
+                <span class="w-2 h-2 bg-green-400 rounded-full"></span>
+                <span>${method.name}</span>
+            </div>
+        `).join('');
+    }
+
+    displayContactInfo(contactData) {
+        const container = document.getElementById('contact-info');
+        if (!container || !contactData.method || !contactData.value) return;
+
+        const icon = contactData.method === 'telegram' ? 'send' : 
+                    contactData.method === 'whatsapp' ? 'phone' : 'phone';
+        
+        container.innerHTML = `
+            <div class="flex items-center justify-center space-x-2">
+                <i data-lucide="${icon}" class="w-4 h-4"></i>
+                <span>${contactData.method.charAt(0).toUpperCase() + contactData.method.slice(1)}:</span>
+                <span class="font-mono">${contactData.value}</span>
+            </div>
+        `;
+        
+        // Recreate icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
     }
 
     // Signals Methods

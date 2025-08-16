@@ -324,22 +324,60 @@ app.get('/api/admin/settings', authenticateToken, requireAdmin, async (req, res)
 });
 
 app.put('/api/admin/settings', authenticateToken, requireAdmin, async (req, res) => {
-  const { vip_price } = req.body;
-  if (vip_price !== undefined) {
-    try {
+  const { vip_price, contact_method, contact_value } = req.body;
+  
+  try {
+    const updates = [];
+    
+    if (vip_price !== undefined) {
+      updates.push(['vip_price', vip_price]);
+    }
+    
+    if (contact_method !== undefined) {
+      updates.push(['contact_method', contact_method]);
+    }
+    
+    if (contact_value !== undefined) {
+      updates.push(['contact_value', contact_value]);
+    }
+    
+    if (updates.length === 0) {
+      return res.status(400).json({ error: 'No valid settings provided' });
+    }
+    
+    for (const [key, value] of updates) {
       await query(`
         INSERT INTO settings (key, value, updated_at) 
         VALUES ($1, $2, CURRENT_TIMESTAMP) 
         ON CONFLICT (key) 
         DO UPDATE SET value = EXCLUDED.value, updated_at = CURRENT_TIMESTAMP`,
-        ['vip_price', vip_price]);
-      res.json({ message: 'Settings updated successfully' });
-    } catch (err) {
-      console.error('Update settings error:', err);
-      return res.status(500).json({ error: 'Failed to update settings' });
+        [key, value]);
     }
-  } else {
-    res.status(400).json({ error: 'No valid settings provided' });
+    
+    res.json({ message: 'Settings updated successfully' });
+  } catch (err) {
+    console.error('Update settings error:', err);
+    return res.status(500).json({ error: 'Failed to update settings' });
+  }
+});
+
+// Get contact info for public display
+app.get('/api/settings/contact', async (req, res) => {
+  try {
+    const result = await query('SELECT key, value FROM settings WHERE key IN ($1, $2)', ['contact_method', 'contact_value']);
+    const settings = {};
+    const rows = result.rows || result || [];
+    rows.forEach(row => {
+      settings[row.key] = row.value;
+    });
+    
+    res.json({
+      method: settings.contact_method || 'telegram',
+      value: settings.contact_value || '@tradingsignals'
+    });
+  } catch (err) {
+    console.error('Contact settings error:', err);
+    return res.status(500).json({ error: 'Failed to fetch contact info' });
   }
 });
 

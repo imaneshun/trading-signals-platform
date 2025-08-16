@@ -79,8 +79,17 @@ class AdminPanel {
         document.getElementById('cancel-vip-codes')?.addEventListener('click', () => this.hideVipCodesModal());
         document.getElementById('vip-codes-form')?.addEventListener('submit', (e) => this.handleVipCodesSubmit(e));
 
-        // Settings
-        document.getElementById('settings-form')?.addEventListener('submit', (e) => this.handleSettingsSubmit(e));
+        // Settings form
+        const settingsForm = document.getElementById('settings-form');
+        if (settingsForm) {
+            settingsForm.addEventListener('submit', (e) => this.handleSettingsUpdate(e));
+        }
+
+        // Contact form
+        const contactForm = document.getElementById('contact-form');
+        if (contactForm) {
+            contactForm.addEventListener('submit', (e) => this.handleContactUpdate(e));
+        }
 
         // Modal backdrop clicks
         document.getElementById('signal-modal')?.addEventListener('click', (e) => {
@@ -485,14 +494,14 @@ class AdminPanel {
         }
     }
 
-    async handleSettingsSubmit(e) {
+    async handleSettingsUpdate(e) {
         e.preventDefault();
         const formData = new FormData(e.target);
-        const settingsData = Object.fromEntries(formData.entries());
+        const settingsData = {};
         
-        // Convert numeric fields
-        if (settingsData.vip_price) {
-            settingsData.vip_price = parseFloat(settingsData.vip_price);
+        const vipPrice = formData.get('vip-price');
+        if (vipPrice) {
+            settingsData.vip_price = parseFloat(vipPrice);
         }
 
         try {
@@ -512,6 +521,43 @@ class AdminPanel {
             }
         } catch (error) {
             console.error('Error updating settings:', error);
+            this.showNotification('Network error. Please try again.', 'error');
+        }
+    }
+
+    async handleContactUpdate(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const contactData = {};
+        
+        const contactMethod = formData.get('contact-method');
+        const contactValue = formData.get('contact-value');
+        
+        if (contactMethod) {
+            contactData.contact_method = contactMethod;
+        }
+        
+        if (contactValue) {
+            contactData.contact_value = contactValue;
+        }
+
+        try {
+            const response = await this.fetchWithAuth('/api/admin/settings', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(contactData)
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                this.showNotification('Contact information updated successfully!', 'success');
+                this.settings = { ...this.settings, ...contactData };
+            } else {
+                this.showNotification(data.error || 'Failed to update contact info', 'error');
+            }
+        } catch (error) {
+            console.error('Error updating contact info:', error);
             this.showNotification('Network error. Please try again.', 'error');
         }
     }
