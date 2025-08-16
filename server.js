@@ -94,6 +94,215 @@ app.get('/admin.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
+// VIP activation endpoint
+app.post('/api/vip/activate', async (req, res) => {
+  try {
+    const { vipCode, email, password } = req.body;
+
+    if (!vipCode || !email || !password) {
+      return res.status(400).json({ error: 'VIP code, email, and password are required' });
+    }
+
+    // Check if VIP code exists and is not used
+    const codeResult = await query('SELECT * FROM vip_codes WHERE code = $1 AND is_used = FALSE', [vipCode]);
+    const codes = codeResult.rows || codeResult || [];
+    
+    if (codes.length === 0) {
+      return res.status(400).json({ error: 'Invalid or already used VIP code' });
+    }
+
+    const vipCodeData = codes[0];
+
+    // Check if user exists
+    let userResult = await query('SELECT * FROM users WHERE email = $1', [email]);
+    let users = userResult.rows || userResult || [];
+    let user;
+
+    if (users.length === 0) {
+      // Create new user
+      const hashedPassword = await bcrypt.hash(password, 12);
+      const vipExpiresAt = moment().add(vipCodeData.duration_days, 'days').format('YYYY-MM-DD HH:mm:ss');
+      
+      const newUserResult = await query(`
+        INSERT INTO users (email, password, user_type, vip_expires_at, created_at) 
+        VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP) 
+        RETURNING *`,
+        [email, hashedPassword, 'vip', vipExpiresAt]);
+      
+      const newUsers = newUserResult.rows || newUserResult || [];
+      user = newUsers[0];
+    } else {
+      // Update existing user
+      user = users[0];
+      const isValidPassword = await bcrypt.compare(password, user.password);
+      
+      if (!isValidPassword) {
+        return res.status(400).json({ error: 'Invalid password' });
+      }
+
+      const vipExpiresAt = moment().add(vipCodeData.duration_days, 'days').format('YYYY-MM-DD HH:mm:ss');
+      
+      await query(`
+        UPDATE users SET user_type = $1, vip_expires_at = $2, updated_at = CURRENT_TIMESTAMP 
+        WHERE id = $3`,
+        ['vip', vipExpiresAt, user.id]);
+      
+      user.user_type = 'vip';
+      user.vip_expires_at = vipExpiresAt;
+    }
+
+    // Mark VIP code as used
+    await query(`
+      UPDATE vip_codes SET is_used = TRUE, used_by = $1, used_at = CURRENT_TIMESTAMP 
+      WHERE code = $2`,
+      [user.id, vipCode]);
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { 
+        userId: user.id, 
+        email: user.email, 
+        isAdmin: user.isAdmin || false,
+        userType: user.user_type 
+      },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      message: 'VIP access activated successfully',
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        user_type: user.user_type,
+        vip_expires_at: user.vip_expires_at,
+        isAdmin: user.isAdmin || false
+      }
+    });
+
+  } catch (err) {
+    console.error('VIP activation error:', err);
+    return res.status(500).json({ error: 'Failed to activate VIP access' });
+  }
+});
+
+// Investment creation endpoint
+app.post('/api/investment/create', async (req, res) => {
+  try {
+    const { email, password, amount, paymentMethod } = req.body;
+
+    if (!email || !password || !amount || !paymentMethod) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    if (amount < 100) {
+      return res.status(400).json({ error: 'Minimum investment amount is 100 USDT' });
+    }
+
+    // Check if user exists
+    let userResult = await query('SELECT * FROM users WHERE email = $1', [email]);
+    let users = userResult.rows || userResult || [];
+    let user;
+
+    if (users.length === 0) {
+      // Create new user
+      const hashedPassword = await bcrypt.hash(password, 12);
+      
+      const newUserResult = await query(`
+        INSERT INTO users (email, password, user_type, created_at) 
+        VALUES ($1, $2, $3, CURRENT_TIMESTAMP) 
+        RETURNING *`,
+        [email, hashedPassword, 'investor']);
+      
+      const newUsers = newUserResult.rows || newUserResult || [];
+      user = newUsers[0];
+    } else {
+      // Update existing user
+      user = users[0];
+      const isValidPassword = await bcrypt.compare(password, user.password);
+      
+      if (!isValidPassword) {
+        return res.status(400).json({ error: 'Invalid password' });
+      }
+
+      await query(`
+        UPDATE users SET user_type = $1, updated_at = CURRENT_TIMESTAMP 
+        WHERE id = $2`,
+        ['investor', user.id]);
+      
+      user.user_type = 'investor';
+    }
+
+    // Get investment rate from settings
+    const rateResult = await query('SELECT value FROM settings WHERE key = $1', ['investment_rate']);
+    const rates = rateResult.rows || rateResult || [];
+    const investmentRate = rates.length > 0 ? parseFloat(rates[0].value) : 5.0;
+
+    // Create investment record
+    await query(`
+      INSERT INTO investments (user_id, amount, profit_rate, payment_method, status, start_date, created_at) 
+      VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+      [user.id, amount, investmentRate, paymentMethod, 'pending']);
+
+    // Get payment method details
+    const paymentResult = await query('SELECT * FROM payment_methods WHERE name = $1 AND is_active = TRUE', [paymentMethod]);
+    const paymentMethods = paymentResult.rows || paymentResult || [];
+    
+    if (paymentMethods.length === 0) {
+      return res.status(400).json({ error: 'Invalid payment method' });
+    }
+
+    const paymentInfo = {
+      method: paymentMethod,
+      address: paymentMethods[0].address,
+      amount: amount
+    };
+
+    // Get contact info
+    const contactResult = await query('SELECT key, value FROM settings WHERE key IN ($1, $2)', ['contact_method', 'contact_value']);
+    const contactRows = contactResult.rows || contactResult || [];
+    const contactSettings = {};
+    contactRows.forEach(row => {
+      contactSettings[row.key] = row.value;
+    });
+
+    const contactInfo = {
+      method: contactSettings.contact_method || 'telegram',
+      value: contactSettings.contact_value || '@tradingsignals'
+    };
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { 
+        userId: user.id, 
+        email: user.email, 
+        isAdmin: user.isAdmin || false,
+        userType: user.user_type 
+      },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      message: 'Investment account created successfully',
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        user_type: user.user_type,
+        isAdmin: user.isAdmin || false
+      },
+      paymentInfo,
+      contactInfo
+    });
+
+  } catch (err) {
+    console.error('Investment creation error:', err);
+    return res.status(500).json({ error: 'Failed to create investment' });
+  }
+});
+
 // Auth routes
 app.post('/api/auth/register', async (req, res) => {
   try {
