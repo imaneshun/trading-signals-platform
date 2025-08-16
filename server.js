@@ -40,10 +40,10 @@ const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100 // limit each IP to 100 requests per windowMs
 });
-app.use(limiter);
+app.use('/api/', limiter);
 
-// JWT middleware
-const authenticateToken = (req, res, next) => {
+// Auth middleware
+function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
@@ -53,24 +53,27 @@ const authenticateToken = (req, res, next) => {
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) {
-      return res.status(403).json({ error: 'Invalid or expired token' });
+      return res.status(403).json({ error: 'Invalid token' });
     }
     req.user = user;
     next();
   });
-};
+}
 
 // Admin middleware
-const requireAdmin = (req, res, next) => {
-  if (!req.user.is_admin) {
+function requireAdmin(req, res, next) {
+  if (!req.user.isAdmin) {
     return res.status(403).json({ error: 'Admin access required' });
   }
   next();
-};
+}
 
 // Routes
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
-// Authentication routes
+// Auth routes
 app.post('/api/auth/register', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -184,20 +187,19 @@ app.get('/api/signals/vip', authenticateToken, async (req, res) => {
 });
 
 // VIP code redemption
-app.post('/api/redeem-code', authenticateToken, (req, res) => {
+app.post('/api/redeem-code', authenticateToken, async (req, res) => {
   const { code } = req.body;
   
   if (!code) {
     return res.status(400).json({ error: 'Code required' });
   }
   
-  db.get('SELECT * FROM vip_codes WHERE code = ? AND is_used = 0', [code], (err, vipCode) => {
-    if (err) {
-      return res.status(500).json({ error: 'Server error' });
-    }
-    
+  try {
+    const vipCodeResult = await query('SELECT * FROM vip_codes WHERE code = $1 AND is_used = false', [code]);
+    const vipCode = vipCodeResult.rows[0];
+
     if (!vipCode) {
-      return res.status(400).json({ error: 'Invalid or already used code' });
+      return res.status(404).json({ error: 'Invalid or expired code' });
     }
     
     // Check if code has expired
@@ -205,57 +207,47 @@ app.post('/api/redeem-code', authenticateToken, (req, res) => {
       return res.status(400).json({ error: 'Code has expired' });
     }
     
-    // Calculate new VIP expiry date
-    const currentVipExpiry = moment();
-    db.get('SELECT vip_expires_at FROM users WHERE id = ?', [req.user.id], (err, user) => {
-      if (err) {
-        return res.status(500).json({ error: 'Server error' });
-      }
-      
-      let newExpiry;
-      if (user.vip_expires_at && moment(user.vip_expires_at).isAfter(moment())) {
-        // Extend existing VIP
-        newExpiry = moment(user.vip_expires_at).add(vipCode.duration_days, 'days');
-      } else {
-        // New VIP subscription
-        newExpiry = moment().add(vipCode.duration_days, 'days');
-      }
-      
-      // Update user VIP status
-      db.run('UPDATE users SET vip_status = "vip", vip_expires_at = ? WHERE id = ?', 
-        [newExpiry.format('YYYY-MM-DD HH:mm:ss'), req.user.id], (err) => {
-          if (err) {
-            return res.status(500).json({ error: 'Failed to activate VIP' });
-          }
-          
-          // Mark code as used
-          db.run('UPDATE vip_codes SET is_used = 1, used_by = ?, used_at = CURRENT_TIMESTAMP WHERE id = ?', 
-            [req.user.id, vipCode.id], (err) => {
-              if (err) {
-                console.error('Failed to mark code as used:', err);
-              }
-              
-              res.json({ 
-                message: 'VIP access activated successfully',
-                vip_expires_at: newExpiry.format('YYYY-MM-DD HH:mm:ss')
-              });
-            });
-        });
+    // Get user's current VIP status
+    const userResult = await query('SELECT vip_expires_at FROM users WHERE id = $1', [req.user.id]);
+    const user = userResult.rows[0];
+    
+    let newExpiry;
+    if (user.vip_expires_at && moment(user.vip_expires_at).isAfter(moment())) {
+      // Extend existing VIP
+      newExpiry = moment(user.vip_expires_at).add(vipCode.duration_days, 'days');
+    } else {
+      // New VIP or expired VIP
+      newExpiry = moment().add(vipCode.duration_days, 'days');
+    }
+    
+    // Update user VIP status
+    await query('UPDATE users SET vip_status = $1, vip_expires_at = $2 WHERE id = $3', 
+      ['vip', newExpiry.format('YYYY-MM-DD HH:mm:ss'), req.user.id]);
+    
+    // Mark code as used
+    await query('UPDATE vip_codes SET is_used = true, used_by = $1, used_at = CURRENT_TIMESTAMP WHERE id = $2', 
+      [req.user.id, vipCode.id]);
+    
+    res.json({ 
+      message: 'VIP activated successfully',
+      expiresAt: newExpiry.format('YYYY-MM-DD HH:mm:ss')
     });
-  });
+  } catch (err) {
+    return res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // Admin routes
-app.get('/api/admin/signals', authenticateToken, requireAdmin, (req, res) => {
-  db.all('SELECT * FROM signals ORDER BY created_at DESC', [], (err, signals) => {
-    if (err) {
-      return res.status(500).json({ error: 'Failed to fetch signals' });
-    }
-    res.json(signals);
-  });
+app.get('/api/admin/signals', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const result = await query('SELECT * FROM signals ORDER BY created_at DESC', []);
+    res.json(result.rows);
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to fetch signals' });
+  }
 });
 
-app.post('/api/admin/signals', authenticateToken, requireAdmin, (req, res) => {
+app.post('/api/admin/signals', authenticateToken, requireAdmin, async (req, res) => {
   const { pair, entry_price, target_1, target_2, target_3, stop_loss, signal_type, description, scheduled_at } = req.body;
   
   if (!pair || !entry_price || !stop_loss) {
@@ -264,137 +256,114 @@ app.post('/api/admin/signals', authenticateToken, requireAdmin, (req, res) => {
   
   const publishedAt = scheduled_at ? null : new Date().toISOString();
   
-  db.run(`INSERT INTO signals (pair, entry_price, target_1, target_2, target_3, stop_loss, signal_type, description, published_at, scheduled_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [pair, entry_price, target_1, target_2, target_3, stop_loss, signal_type || 'free', description, publishedAt, scheduled_at],
-    function(err) {
-      if (err) {
-        return res.status(500).json({ error: 'Failed to create signal' });
-      }
-      res.json({ id: this.lastID, message: 'Signal created successfully' });
-    });
+  try {
+    await query(`INSERT INTO signals (pair, entry_price, target_1, target_2, target_3, stop_loss, signal_type, description, published_at, scheduled_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+      [pair, entry_price, target_1, target_2, target_3, stop_loss, signal_type || 'free', description, publishedAt, scheduled_at]);
+    res.status(201).json({ message: 'Signal created successfully' });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to create signal' });
+  }
 });
 
-app.put('/api/admin/signals/:id', authenticateToken, requireAdmin, (req, res) => {
+app.put('/api/admin/signals/:id', authenticateToken, requireAdmin, async (req, res) => {
   const { id } = req.params;
   const { pair, entry_price, target_1, target_2, target_3, stop_loss, signal_type, status, description } = req.body;
   
-  db.run(`UPDATE signals SET pair = ?, entry_price = ?, target_1 = ?, target_2 = ?, target_3 = ?, 
-          stop_loss = ?, signal_type = ?, status = ?, description = ?, updated_at = CURRENT_TIMESTAMP
-          WHERE id = ?`,
-    [pair, entry_price, target_1, target_2, target_3, stop_loss, signal_type, status, description, id],
-    function(err) {
-      if (err) {
-        return res.status(500).json({ error: 'Failed to update signal' });
-      }
-      if (this.changes === 0) {
-        return res.status(404).json({ error: 'Signal not found' });
-      }
-      res.json({ message: 'Signal updated successfully' });
-    });
+  try {
+    await query(`UPDATE signals SET pair = $1, entry_price = $2, target_1 = $3, target_2 = $4, target_3 = $5, 
+            stop_loss = $6, signal_type = $7, status = $8, description = $9, updated_at = CURRENT_TIMESTAMP
+            WHERE id = $10`,
+      [pair, entry_price, target_1, target_2, target_3, stop_loss, signal_type, status, description, id]);
+    res.json({ message: 'Signal updated successfully' });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to update signal' });
+  }
 });
 
-app.delete('/api/admin/signals/:id', authenticateToken, requireAdmin, (req, res) => {
+app.delete('/api/admin/signals/:id', authenticateToken, requireAdmin, async (req, res) => {
   const { id } = req.params;
   
-  db.run('DELETE FROM signals WHERE id = ?', [id], function(err) {
-    if (err) {
-      return res.status(500).json({ error: 'Failed to delete signal' });
-    }
-    if (this.changes === 0) {
-      return res.status(404).json({ error: 'Signal not found' });
-    }
+  try {
+    await query('DELETE FROM signals WHERE id = $1', [id]);
     res.json({ message: 'Signal deleted successfully' });
-  });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to delete signal' });
+  }
 });
 
 // VIP codes management
-app.get('/api/admin/vip-codes', authenticateToken, requireAdmin, (req, res) => {
-  db.all(`SELECT vc.*, u.email as used_by_email 
-          FROM vip_codes vc 
-          LEFT JOIN users u ON vc.used_by = u.id 
-          ORDER BY vc.created_at DESC`, [], (err, codes) => {
-    if (err) {
-      return res.status(500).json({ error: 'Failed to fetch VIP codes' });
-    }
-    res.json(codes);
-  });
+app.get('/api/admin/vip-codes', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const result = await query(`SELECT vc.*, u.email as used_by_email 
+            FROM vip_codes vc 
+            LEFT JOIN users u ON vc.used_by = u.id 
+            ORDER BY vc.created_at DESC`, []);
+    res.json(result.rows);
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to fetch VIP codes' });
+  }
 });
 
-app.post('/api/admin/vip-codes', authenticateToken, requireAdmin, (req, res) => {
-  const { duration_days, quantity = 1, expires_at } = req.body;
+app.post('/api/admin/vip-codes', authenticateToken, requireAdmin, async (req, res) => {
+  const { duration_days, quantity = 1 } = req.body;
   
-  if (!duration_days) {
-    return res.status(400).json({ error: 'Duration in days is required' });
+  if (!duration_days || duration_days <= 0) {
+    return res.status(400).json({ error: 'Valid duration in days required' });
   }
   
+  const expires_at = moment().add(30, 'days').format('YYYY-MM-DD HH:mm:ss'); // Codes expire in 30 days
   const codes = [];
-  let completed = 0;
   
-  for (let i = 0; i < quantity; i++) {
-    const code = uuidv4().replace(/-/g, '').substring(0, 12).toUpperCase();
+  try {
+    for (let i = 0; i < quantity; i++) {
+      const code = uuidv4().replace(/-/g, '').substring(0, 12).toUpperCase();
+      
+      await query('INSERT INTO vip_codes (code, duration_days, expires_at) VALUES ($1, $2, $3)',
+        [code, duration_days, expires_at]);
+      codes.push(code);
+    }
     
-    db.run('INSERT INTO vip_codes (code, duration_days, expires_at) VALUES (?, ?, ?)',
-      [code, duration_days, expires_at],
-      function(err) {
-        if (err) {
-          return res.status(500).json({ error: 'Failed to generate VIP codes' });
-        }
-        
-        codes.push({ id: this.lastID, code, duration_days, expires_at });
-        completed++;
-        
-        if (completed === quantity) {
-          res.json({ codes, message: `${quantity} VIP code(s) generated successfully` });
-        }
-      });
+    res.status(201).json({ 
+      message: `${quantity} VIP code(s) generated successfully`,
+      codes: codes
+    });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to generate VIP codes' });
   }
 });
 
 // Settings
-app.get('/api/admin/settings', authenticateToken, requireAdmin, (req, res) => {
-  db.all('SELECT * FROM settings', [], (err, settings) => {
-    if (err) {
-      return res.status(500).json({ error: 'Failed to fetch settings' });
-    }
-    
-    const settingsObj = {};
-    settings.forEach(setting => {
-      settingsObj[setting.key] = setting.value;
+app.get('/api/admin/settings', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const result = await query('SELECT * FROM settings', []);
+    const settings = {};
+    result.rows.forEach(row => {
+      settings[row.key] = row.value;
     });
-    
-    res.json(settingsObj);
-  });
+    res.json(settings);
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to fetch settings' });
+  }
 });
 
-app.put('/api/admin/settings', authenticateToken, requireAdmin, (req, res) => {
+app.put('/api/admin/settings', authenticateToken, requireAdmin, async (req, res) => {
   const { vip_price } = req.body;
   
   if (vip_price !== undefined) {
-    db.run('INSERT OR REPLACE INTO settings (key, value, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP)',
-      ['vip_price', vip_price],
-      function(err) {
-        if (err) {
-          return res.status(500).json({ error: 'Failed to update settings' });
-        }
-        res.json({ message: 'Settings updated successfully' });
-      });
+    try {
+      await query('INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, CURRENT_TIMESTAMP) ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = CURRENT_TIMESTAMP',
+        ['vip_price', vip_price]);
+      res.json({ message: 'Settings updated successfully' });
+    } catch (err) {
+      return res.status(500).json({ error: 'Failed to update settings' });
+    }
   } else {
     res.status(400).json({ error: 'No valid settings provided' });
   }
 });
 
-// Serve static files and handle SPA routing
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong!' });
-});
-
+// Start server
 app.listen(PORT, () => {
   console.log(`🚀 Trading Signals Platform running on port ${PORT}`);
   console.log(`📊 Admin login: admin@tradingsignals.com / admin123`);
