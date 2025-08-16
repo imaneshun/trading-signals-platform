@@ -30,6 +30,27 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Routes
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+app.get('/vip', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'vip.html'));
+});
+
+app.get('/investment', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'investment.html'));
+});
+
+app.get('/dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+});
+
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100
