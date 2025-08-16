@@ -5,8 +5,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const sqlite3 = require('sqlite3').verbose();
-const { Pool } = require('pg');
+// Database dependencies removed - using abstraction layer
 const { v4: uuidv4 } = require('uuid');
 const moment = require('moment');
 require('dotenv').config();
@@ -15,88 +14,17 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production';
 
-// Database setup
-const isProduction = process.env.NODE_ENV === 'production';
-const db = isProduction ? null : new sqlite3.Database('./trading_signals.db');
-const pool = isProduction ? new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
-}) : null;
+// Database setup - use the abstraction layer
+const { query, initializeDatabase, isProduction } = require('./database');
 
 // Initialize database tables
-db.serialize(() => {
-  // Users table
-  db.run(`CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    is_admin BOOLEAN DEFAULT 0,
-    vip_status TEXT DEFAULT 'free',
-    vip_expires_at DATETIME,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )`);
-
-  // Signals table
-  db.run(`CREATE TABLE IF NOT EXISTS signals (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    pair TEXT NOT NULL,
-    entry_price REAL NOT NULL,
-    target_1 REAL,
-    target_2 REAL,
-    target_3 REAL,
-    stop_loss REAL NOT NULL,
-    signal_type TEXT DEFAULT 'free',
-    status TEXT DEFAULT 'active',
-    description TEXT,
-    published_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    scheduled_at DATETIME,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )`);
-
-  // VIP codes table
-  db.run(`CREATE TABLE IF NOT EXISTS vip_codes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    code TEXT UNIQUE NOT NULL,
-    duration_days INTEGER NOT NULL,
-    is_used BOOLEAN DEFAULT 0,
-    used_by INTEGER,
-    used_at DATETIME,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    expires_at DATETIME,
-    FOREIGN KEY (used_by) REFERENCES users (id)
-  )`);
-
-  // Settings table for admin configurations
-  db.run(`CREATE TABLE IF NOT EXISTS settings (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    key TEXT UNIQUE NOT NULL,
-    value TEXT NOT NULL,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )`);
-
-  // Insert default admin user (password: admin123)
-  const adminPassword = bcrypt.hashSync('admin123', 10);
-  db.run(`INSERT OR IGNORE INTO users (email, password, is_admin) VALUES (?, ?, ?)`, 
-    ['admin@tradingsignals.com', adminPassword, 1]);
-
-  // Insert default VIP price setting
-  db.run(`INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)`, 
-    ['vip_price', '29.99']);
-
-  // Insert some sample signals
-  const sampleSignals = [
-    ['BTC/USDT', 45000, 46500, 48000, 50000, 43500, 'free', 'active', 'Strong bullish momentum expected'],
-    ['ETH/USDT', 3200, 3350, 3500, 3700, 3050, 'free', 'active', 'Breaking resistance level'],
-    ['ADA/USDT', 0.45, 0.48, 0.52, 0.56, 0.42, 'vip', 'active', 'VIP exclusive signal - High probability setup'],
-  ];
-
-  sampleSignals.forEach(signal => {
-    db.run(`INSERT OR IGNORE INTO signals (pair, entry_price, target_1, target_2, target_3, stop_loss, signal_type, status, description) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, signal);
-  });
+initializeDatabase().then(() => {
+  console.log('✅ Database initialized successfully');
+}).catch(err => {
+  console.error('❌ Database initialization failed:', err);
 });
+
+// Old SQLite initialization code removed - now handled by database.js
 
 // Middleware
 app.use(helmet({
@@ -153,80 +81,74 @@ app.post('/api/auth/register', async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    db.run('INSERT INTO users (email, password) VALUES (?, ?)', 
-      [email, hashedPassword], 
-      function(err) {
-        if (err) {
-          if (err.message.includes('UNIQUE constraint failed')) {
-            return res.status(400).json({ error: 'Email already exists' });
-          }
-          return res.status(500).json({ error: 'Registration failed' });
-        }
-        
-        const token = jwt.sign(
-          { id: this.lastID, email, is_admin: false }, 
-          JWT_SECRET, 
-          { expiresIn: '7d' }
-        );
-        
-        res.json({ token, user: { id: this.lastID, email, is_admin: false } });
-      }
-    );
+    try {
+      await query('INSERT INTO users (email, password) VALUES ($1, $2)', [email, hashedPassword]);
+      res.status(201).json({ message: 'User registered successfully' });
+    } catch (err) {
+      return res.status(500).json({ error: 'Registration failed' });
+    }
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
   }
 });
 
-app.post('/api/auth/login', (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body;
   
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password required' });
   }
 
-  db.get('SELECT * FROM users WHERE email = ?', [email], async (err, user) => {
-    if (err) {
-      return res.status(500).json({ error: 'Server error' });
+  try {
+    const result = await query('SELECT * FROM users WHERE email = $1', [email]);
+    const user = result.rows[0];
+
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
     }
-    
-    if (!user || !await bcrypt.compare(password, user.password)) {
+
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
     const token = jwt.sign(
-      { id: user.id, email: user.email, is_admin: user.is_admin }, 
-      JWT_SECRET, 
-      { expiresIn: '7d' }
+      { id: user.id, email: user.email, isAdmin: user.is_admin },
+      JWT_SECRET,
+      { expiresIn: '24h' }
     );
-    
-    res.json({ 
-      token, 
-      user: { 
-        id: user.id, 
-        email: user.email, 
-        is_admin: user.is_admin,
-        vip_status: user.vip_status,
-        vip_expires_at: user.vip_expires_at
-      } 
+
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        isAdmin: user.is_admin,
+        vipStatus: user.vip_status,
+        vipExpiresAt: user.vip_expires_at
+      }
     });
-  });
+  } catch (err) {
+    return res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // Signals routes
-app.get('/api/signals', (req, res) => {
+app.get('/api/signals', async (req, res) => {
   const { type = 'all' } = req.query;
-  let query = 'SELECT * FROM signals WHERE status = "active"';
+  let queryText = 'SELECT * FROM signals WHERE status = $1';
+  let params = ['active'];
   
   if (type === 'free') {
-    query += ' AND signal_type = "free"';
+    queryText += ' AND signal_type = $2';
+    params.push('free');
   }
   
-  query += ' ORDER BY published_at DESC';
+  queryText += ' ORDER BY published_at DESC';
   
-  db.all(query, [], (err, signals) => {
-    if (err) {
-      return res.status(500).json({ error: 'Failed to fetch signals' });
-    }
+  try {
+    const result = await query(queryText, params);
+    const signals = result.rows;
     
     // Filter VIP signals for non-VIP users
     const filteredSignals = signals.filter(signal => {
@@ -238,28 +160,27 @@ app.get('/api/signals', (req, res) => {
     });
     
     res.json(filteredSignals);
-  });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to fetch signals' });
+  }
 });
 
-app.get('/api/signals/vip', authenticateToken, (req, res) => {
-  // Check if user has VIP access
-  db.get('SELECT vip_status, vip_expires_at FROM users WHERE id = ?', [req.user.id], (err, user) => {
-    if (err) {
-      return res.status(500).json({ error: 'Server error' });
-    }
+app.get('/api/signals/vip', authenticateToken, async (req, res) => {
+  try {
+    // Check if user has VIP access
+    const userResult = await query('SELECT vip_status, vip_expires_at FROM users WHERE id = $1', [req.user.id]);
+    const user = userResult.rows[0];
     
-    if (user.vip_status !== 'vip' || (user.vip_expires_at && moment(user.vip_expires_at).isBefore(moment()))) {
+    if (!user || user.vip_status !== 'vip' || (user.vip_expires_at && moment(user.vip_expires_at).isBefore(moment()))) {
       return res.status(403).json({ error: 'VIP access required' });
     }
     
-    db.all('SELECT * FROM signals WHERE signal_type = "vip" AND status = "active" ORDER BY published_at DESC', 
-      [], (err, signals) => {
-        if (err) {
-          return res.status(500).json({ error: 'Failed to fetch VIP signals' });
-        }
-        res.json(signals);
-      });
-  });
+    const signalsResult = await query('SELECT * FROM signals WHERE signal_type = $1 AND status = $2 ORDER BY published_at DESC', 
+      ['vip', 'active']);
+    res.json(signalsResult.rows);
+  } catch (err) {
+    return res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // VIP code redemption
