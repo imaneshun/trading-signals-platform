@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIP Access - Trading Signals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/lucide@0.263.1/dist/umd/lucide.js" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.1/dist/umd/lucide.js"></script>
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 border-b border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-xl font-bold text-blue-400">Trading Signals</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Home</a>
+                    <a href="/investment" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Investment</a>
+                    <button id="loginBtn" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md text-sm font-medium">Login</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- VIP Section -->
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold mb-4">VIP Access</h1>
+            <p class="text-gray-400 text-lg">Enter your VIP code to access premium trading signals</p>
+        </div>
+
+        <!-- VIP Code Form -->
+        <div class="bg-gray-800 rounded-lg p-8 max-w-md mx-auto">
+            <form id="vipForm" class="space-y-6">
+                <div>
+                    <label for="vipCode" class="block text-sm font-medium text-gray-300 mb-2">VIP Code</label>
+                    <input type="text" id="vipCode" name="vipCode" required
+                           class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           placeholder="Enter your VIP code" autocomplete="off">
+                </div>
+                
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                    <input type="email" id="email" name="email" required
+                           class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           placeholder="your@email.com" autocomplete="email">
+                </div>
+                
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                    <input type="password" id="password" name="password" required
+                           class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           placeholder="Create a password" autocomplete="new-password">
+                </div>
+                
+                <button type="submit" 
+                        class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 transform hover:scale-105">
+                    Activate VIP Access
+                </button>
+            </form>
+        </div>
+
+        <!-- VIP Benefits -->
+        <div class="mt-12 grid md:grid-cols-3 gap-6">
+            <div class="bg-gray-800 rounded-lg p-6 text-center">
+                <div class="text-yellow-400 mb-4">
+                    <i data-lucide="star" class="w-12 h-12 mx-auto"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Premium Signals</h3>
+                <p class="text-gray-400">Access to high-accuracy VIP trading signals with detailed analysis</p>
+            </div>
+            
+            <div class="bg-gray-800 rounded-lg p-6 text-center">
+                <div class="text-green-400 mb-4">
+                    <i data-lucide="trending-up" class="w-12 h-12 mx-auto"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Higher Success Rate</h3>
+                <p class="text-gray-400">VIP signals have historically higher success rates and profit potential</p>
+            </div>
+            
+            <div class="bg-gray-800 rounded-lg p-6 text-center">
+                <div class="text-blue-400 mb-4">
+                    <i data-lucide="clock" class="w-12 h-12 mx-auto"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Early Access</h3>
+                <p class="text-gray-400">Get signals before they're released to free users</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="fixed top-4 right-4 max-w-sm w-full bg-red-600 text-white p-4 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out z-50">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <i data-lucide="alert-circle" class="w-5 h-5"></i>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm font-medium" id="notificationMessage"></p>
+            </div>
+            <div class="ml-auto pl-3">
+                <button onclick="hideNotification()" class="text-white hover:text-gray-200" title="Close notification">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/vip.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

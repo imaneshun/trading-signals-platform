@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Trading Signals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/lucide@0.263.1/dist/umd/lucide.js" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.1/dist/umd/lucide.js"></script>
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 border-b border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-xl font-bold text-blue-400">Trading Signals</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span id="userEmail" class="text-gray-300"></span>
+                    <button id="logoutBtn" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Content -->
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold mb-2">Dashboard</h1>
+            <p class="text-gray-400">Welcome to your personal dashboard</p>
+        </div>
+
+        <!-- User Status Cards -->
+        <div class="grid md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-gray-800 rounded-lg p-6">
+                <div class="flex items-center">
+                    <div class="text-blue-400 mr-4">
+                        <i data-lucide="user" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold">Account Type</h3>
+                        <p id="accountType" class="text-gray-400">Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="vipStatusCard" class="bg-gray-800 rounded-lg p-6 hidden">
+                <div class="flex items-center">
+                    <div class="text-yellow-400 mr-4">
+                        <i data-lucide="star" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold">VIP Status</h3>
+                        <p id="vipExpiry" class="text-gray-400">Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="investmentCard" class="bg-gray-800 rounded-lg p-6 hidden">
+                <div class="flex items-center">
+                    <div class="text-green-400 mr-4">
+                        <i data-lucide="trending-up" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold">Total Investment</h3>
+                        <p id="totalInvestment" class="text-gray-400">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIP Signals Section -->
+        <div id="vipSignalsSection" class="mb-8 hidden">
+            <h2 class="text-2xl font-bold mb-4">VIP Signals</h2>
+            <div id="vipSignals" class="grid gap-4">
+                <!-- VIP signals will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Investment Details -->
+        <div id="investmentSection" class="mb-8 hidden">
+            <h2 class="text-2xl font-bold mb-4">My Investments</h2>
+            <div id="investmentList" class="space-y-4">
+                <!-- Investment details will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Free Signals Section -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold mb-4">Free Signals</h2>
+            <div id="freeSignals" class="grid gap-4">
+                <!-- Free signals will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Investment Detail Modal -->
+    <div id="investmentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-gray-800 rounded-lg p-8 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold">Investment Details</h3>
+                <button onclick="closeInvestmentModal()" class="text-gray-400 hover:text-white" title="Close modal">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <div id="investmentModalContent" class="space-y-4">
+                <!-- Investment details will be populated here -->
+            </div>
+            
+            <div class="mt-6 flex space-x-3">
+                <button id="withdrawBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md" title="Request withdrawal">
+                    Request Withdrawal
+                </button>
+                <button onclick="closeInvestmentModal()" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md" title="Close modal">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="fixed top-4 right-4 max-w-sm w-full bg-red-600 text-white p-4 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out z-50">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <i data-lucide="alert-circle" class="w-5 h-5"></i>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm font-medium" id="notificationMessage"></p>
+            </div>
+            <div class="ml-auto pl-3">
+                <button onclick="hideNotification()" class="text-white hover:text-gray-200" title="Close notification">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/dashboard.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

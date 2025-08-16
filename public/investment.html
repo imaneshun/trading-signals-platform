@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment - Trading Signals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/lucide@0.263.1/dist/umd/lucide.js" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.1/dist/umd/lucide.js"></script>
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 border-b border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-xl font-bold text-blue-400">Trading Signals</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Home</a>
+                    <a href="/vip" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">VIP</a>
+                    <button id="loginBtn" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md text-sm font-medium">Login</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Investment Section -->
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold mb-4">Investment Opportunity</h1>
+            <p class="text-gray-400 text-lg">Earn 5% monthly profit with our professional trading services</p>
+        </div>
+
+        <!-- Investment Benefits -->
+        <div class="grid md:grid-cols-3 gap-8 mb-12">
+            <div class="bg-gray-800 rounded-lg p-6 text-center">
+                <div class="text-green-400 mb-4">
+                    <i data-lucide="trending-up" class="w-12 h-12 mx-auto"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">5% Monthly Return</h3>
+                <p class="text-gray-400">Guaranteed 5% profit every month on your investment</p>
+            </div>
+            
+            <div class="bg-gray-800 rounded-lg p-6 text-center">
+                <div class="text-blue-400 mb-4">
+                    <i data-lucide="shield-check" class="w-12 h-12 mx-auto"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Secure Investment</h3>
+                <p class="text-gray-400">Your capital is protected with professional risk management</p>
+            </div>
+            
+            <div class="bg-gray-800 rounded-lg p-6 text-center">
+                <div class="text-yellow-400 mb-4">
+                    <i data-lucide="calendar" class="w-12 h-12 mx-auto"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Monthly Withdrawals</h3>
+                <p class="text-gray-400">Withdraw your capital + profit after each month</p>
+            </div>
+        </div>
+
+        <!-- Investment Form -->
+        <div class="bg-gray-800 rounded-lg p-8 max-w-2xl mx-auto">
+            <h2 class="text-2xl font-bold mb-6 text-center">Start Your Investment</h2>
+            
+            <form id="investmentForm" class="space-y-6">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                        <input type="email" id="email" name="email" required
+                               class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="your@email.com" autocomplete="email">
+                    </div>
+                    
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                        <input type="password" id="password" name="password" required
+                               class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="Create a password" autocomplete="new-password">
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="amount" class="block text-sm font-medium text-gray-300 mb-2">Investment Amount (USDT)</label>
+                    <input type="number" id="amount" name="amount" required min="100" step="0.01"
+                           class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           placeholder="Minimum 100 USDT">
+                </div>
+                
+                <div>
+                    <label for="paymentMethod" class="block text-sm font-medium text-gray-300 mb-2">Payment Method</label>
+                    <select id="paymentMethod" name="paymentMethod" required
+                            class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Select payment method</option>
+                        <option value="USDT">USDT (TRC20)</option>
+                        <option value="TRON">TRON (TRX)</option>
+                        <option value="TON">TON</option>
+                    </select>
+                </div>
+                
+                <button type="submit" 
+                        class="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 transform hover:scale-105">
+                    Start Investment
+                </button>
+            </form>
+        </div>
+
+        <!-- Payment Information -->
+        <div id="paymentInfo" class="bg-gray-800 rounded-lg p-8 max-w-2xl mx-auto mt-8 hidden">
+            <h3 class="text-xl font-bold mb-4">Payment Information</h3>
+            <div id="paymentDetails" class="space-y-4">
+                <!-- Payment details will be populated here -->
+            </div>
+            
+            <!-- Contact Information -->
+            <div class="mt-6 p-4 bg-gray-700 rounded-lg">
+                <h4 class="font-semibold mb-2">Contact Support</h4>
+                <div id="contactInfo" class="text-gray-300">
+                    <!-- Contact info will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Investment Calculator -->
+        <div class="bg-gray-800 rounded-lg p-8 max-w-2xl mx-auto mt-8">
+            <h3 class="text-xl font-bold mb-4 text-center">Investment Calculator</h3>
+            <div class="space-y-4">
+                <div>
+                    <label for="calcAmount" class="block text-sm font-medium text-gray-300 mb-2">Investment Amount (USDT)</label>
+                    <input type="number" id="calcAmount" min="100" step="0.01" value="1000"
+                           class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 text-center">
+                    <div class="bg-gray-700 p-4 rounded-lg">
+                        <div class="text-2xl font-bold text-green-400" id="monthlyProfit">$50</div>
+                        <div class="text-sm text-gray-400">Monthly Profit</div>
+                    </div>
+                    <div class="bg-gray-700 p-4 rounded-lg">
+                        <div class="text-2xl font-bold text-blue-400" id="totalReturn">$1,050</div>
+                        <div class="text-sm text-gray-400">Total After 1 Month</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="fixed top-4 right-4 max-w-sm w-full bg-red-600 text-white p-4 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out z-50">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <i data-lucide="alert-circle" class="w-5 h-5"></i>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm font-medium" id="notificationMessage"></p>
+            </div>
+            <div class="ml-auto pl-3">
+                <button onclick="hideNotification()" class="text-white hover:text-gray-200" title="Close notification">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/investment.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
