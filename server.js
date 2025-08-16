@@ -314,6 +314,23 @@ app.post('/api/investment/create', async (req, res) => {
   }
 });
 
+// Payment methods endpoint
+app.get('/api/payment-methods', async (req, res) => {
+  try {
+    const paymentMethods = [
+      { name: 'USDT', is_active: true },
+      { name: 'BTC', is_active: true },
+      { name: 'ETH', is_active: true },
+      { name: 'BNB', is_active: true },
+      { name: 'TON', is_active: true }
+    ];
+    res.json({ paymentMethods });
+  } catch (err) {
+    console.error('Payment methods error:', err);
+    res.status(500).json({ error: 'Failed to load payment methods' });
+  }
+});
+
 // Auth routes
 app.post('/api/auth/register', async (req, res) => {
   try {

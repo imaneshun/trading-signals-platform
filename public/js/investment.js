@@ -279,29 +279,112 @@ function openWallet() {
     const amount = document.getElementById('paymentAmount').textContent;
     const address = document.getElementById('walletAddress').value;
     
-    // Create deep links for different wallets
+    if (!paymentMethod || !amount || !address) {
+        alert('Payment information not available. Please try again.');
+        return;
+    }
+    
+    // Show immediate instructions with copy functionality
+    const amountValue = amount.split(' ')[0];
+    const instructions = `Send ${amount} to this address:\n\n${address}\n\nInstructions:\n1. Copy the address above\n2. Open your ${paymentMethod} wallet\n3. Send exactly ${amountValue} ${paymentMethod}\n4. Use the correct network:\n   - USDT: TRC20 network\n   - BTC: Bitcoin network\n   - ETH: Ethereum network\n   - BNB: BSC network\n   - TON: TON network`;
+    
+    // Copy address to clipboard
+    copyToClipboard('walletAddress');
+    
+    // Show detailed instructions
+    alert(instructions);
+    
+    // Try deep links as secondary option
     const walletLinks = {
-        'BTC': `bitcoin:${address}?amount=${amount.split(' ')[0]}`,
-        'ETH': `ethereum:${address}@1?value=${amount.split(' ')[0]}e18`,
-        'USDT': `tron:${address}?amount=${amount.split(' ')[0]}&token=TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t`,
-        'BNB': `binance:${address}?amount=${amount.split(' ')[0]}`,
-        'TON': `ton://transfer/${address}?amount=${amount.split(' ')[0]}`
+        'BTC': `bitcoin:${address}?amount=${amountValue}`,
+        'ETH': `ethereum:${address}?value=${amountValue}`,
+        'USDT': `https://link.trustwallet.com/send?coin=195&address=${address}&amount=${amountValue}`,
+        'BNB': `https://link.trustwallet.com/send?coin=714&address=${address}&amount=${amountValue}`,
+        'TON': `https://app.tonkeeper.com/transfer/${address}?amount=${amountValue}`
     };
     
     const deepLink = walletLinks[paymentMethod];
     
-    if (deepLink) {
-        // Try to open wallet app
-        window.location.href = deepLink;
-        
-        // Fallback: show instructions
-        setTimeout(() => {
-            alert(`If your wallet didn't open automatically:\n\n1. Open your ${paymentMethod} wallet app\n2. Send ${amount} to:\n${address}\n\nAddress copied to clipboard!`);
-            copyToClipboard('walletAddress');
-        }, 1000);
-    } else {
-        alert(`Please open your ${paymentMethod} wallet and send ${amount} to:\n${address}\n\nAddress copied to clipboard!`);
+    if (deepLink && confirm('Would you like to try opening your wallet app automatically?')) {
+        try {
+            // Create a temporary link and click it
+            const tempLink = document.createElement('a');
+            tempLink.href = deepLink;
+            tempLink.target = '_blank';
+            tempLink.rel = 'noopener noreferrer';
+            document.body.appendChild(tempLink);
+            tempLink.click();
+            document.body.removeChild(tempLink);
+        } catch (error) {
+            console.log('Deep link failed:', error);
+        }
+    }
+}
+
+// Specific wallet functions
+function openTrustWallet() {
+    const paymentMethod = document.getElementById('paymentMethod').value;
+    const amount = document.getElementById('paymentAmount').textContent;
+    const address = document.getElementById('walletAddress').value;
+    
+    if (!paymentMethod || !amount || !address) {
+        alert('Payment information not available. Please try again.');
+        return;
+    }
+    
+    const amountValue = amount.split(' ')[0];
+    
+    // Trust Wallet deep links
+    const trustLinks = {
+        'BTC': `https://link.trustwallet.com/send?coin=0&address=${address}&amount=${amountValue}`,
+        'ETH': `https://link.trustwallet.com/send?coin=60&address=${address}&amount=${amountValue}`,
+        'USDT': `https://link.trustwallet.com/send?coin=195&address=${address}&amount=${amountValue}`,
+        'BNB': `https://link.trustwallet.com/send?coin=714&address=${address}&amount=${amountValue}`,
+        'TON': `https://link.trustwallet.com/send?coin=607&address=${address}&amount=${amountValue}`
+    };
+    
+    const trustLink = trustLinks[paymentMethod];
+    if (trustLink) {
+        window.open(trustLink, '_blank');
         copyToClipboard('walletAddress');
+    } else {
+        alert(`Trust Wallet link not available for ${paymentMethod}. Please use manual instructions.`);
+        openWallet();
+    }
+}
+
+function openMetaMask() {
+    const paymentMethod = document.getElementById('paymentMethod').value;
+    const amount = document.getElementById('paymentAmount').textContent;
+    const address = document.getElementById('walletAddress').value;
+    
+    if (!paymentMethod || !amount || !address) {
+        alert('Payment information not available. Please try again.');
+        return;
+    }
+    
+    if (paymentMethod === 'ETH' || paymentMethod === 'USDT') {
+        if (typeof window.ethereum !== 'undefined') {
+            // MetaMask is installed
+            const amountValue = amount.split(' ')[0];
+            const amountWei = (parseFloat(amountValue) * Math.pow(10, 18)).toString(16);
+            
+            window.ethereum.request({
+                method: 'eth_sendTransaction',
+                params: [{
+                    to: address,
+                    value: paymentMethod === 'ETH' ? '0x' + amountWei : '0x0',
+                    from: window.ethereum.selectedAddress,
+                }],
+            }).catch(console.error);
+        } else {
+            // MetaMask not installed
+            alert('MetaMask not detected. Please install MetaMask or use manual instructions.');
+            openWallet();
+        }
+    } else {
+        alert(`MetaMask only supports ETH and USDT. Please use manual instructions for ${paymentMethod}.`);
+        openWallet();
     }
 }
 

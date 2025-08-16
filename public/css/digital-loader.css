@@ -1,0 +1,264 @@
+/* Trading Platform Digital Loading Screen */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+.digital-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 30%, #16213e 70%, #0f3460 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    animation: fadeIn 0.5s ease-in;
+    overflow: hidden;
+}
+
+.digital-loader.fade-out {
+    animation: fadeOut 0.8s ease-out forwards;
+}
+
+.digital-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 3.5rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    background: linear-gradient(
+        90deg,
+        #10b981,
+        #3b82f6,
+        #8b5cf6,
+        #f59e0b,
+        #ef4444,
+        #10b981
+    );
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientShift 3s ease-in-out infinite, textGlow 2s ease-in-out infinite alternate;
+    position: relative;
+    text-align: center;
+    margin-bottom: 2rem;
+    text-shadow: 0 0 30px rgba(16, 185, 129, 0.5);
+}
+
+.trading-stats {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    max-width: 800px;
+    margin-top: 2rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1rem;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 8px;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    animation: statPulse 2s ease-in-out infinite alternate;
+}
+
+.stat-label {
+    color: #9ca3af;
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.stat-value {
+    color: #10b981;
+    font-weight: 600;
+    font-size: 1.2rem;
+    animation: numberCount 2s ease-out;
+}
+
+.stat-value.red {
+    color: #ef4444;
+}
+
+.stat-value.blue {
+    color: #3b82f6;
+}
+
+.chart-container {
+    position: absolute;
+    top: 20%;
+    right: 10%;
+    width: 200px;
+    height: 100px;
+    opacity: 0.3;
+}
+
+.candlestick {
+    position: absolute;
+    width: 8px;
+    background: #10b981;
+    animation: candleGrow 1s ease-out;
+}
+
+.candlestick.red {
+    background: #ef4444;
+}
+
+.candlestick:nth-child(1) { left: 10px; height: 60px; top: 20px; animation-delay: 0.1s; }
+.candlestick:nth-child(2) { left: 25px; height: 80px; top: 0px; animation-delay: 0.2s; }
+.candlestick:nth-child(3) { left: 40px; height: 45px; top: 35px; animation-delay: 0.3s; }
+.candlestick:nth-child(4) { left: 55px; height: 70px; top: 10px; animation-delay: 0.4s; }
+.candlestick:nth-child(5) { left: 70px; height: 55px; top: 25px; animation-delay: 0.5s; }
+
+.grid-lines {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0.1;
+}
+
+.grid-line {
+    position: absolute;
+    background: #10b981;
+}
+
+.grid-line.horizontal {
+    width: 100%;
+    height: 1px;
+}
+
+.grid-line.vertical {
+    width: 1px;
+    height: 100%;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(1.1);
+    }
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes textGlow {
+    from {
+        text-shadow: 
+            0 0 10px rgba(16, 185, 129, 0.8),
+            0 0 20px rgba(16, 185, 129, 0.6),
+            0 0 30px rgba(16, 185, 129, 0.4);
+    }
+    to {
+        text-shadow: 
+            0 0 15px rgba(59, 130, 246, 0.8),
+            0 0 25px rgba(59, 130, 246, 0.6),
+            0 0 35px rgba(59, 130, 246, 0.4);
+    }
+}
+
+@keyframes statPulse {
+    from {
+        transform: scale(1);
+        border-color: rgba(16, 185, 129, 0.3);
+    }
+    to {
+        transform: scale(1.02);
+        border-color: rgba(16, 185, 129, 0.6);
+    }
+}
+
+@keyframes numberCount {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes candleGrow {
+    from {
+        height: 0;
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .digital-text {
+        font-size: 2.5rem;
+        letter-spacing: 0.2em;
+    }
+}
+
+@media (max-width: 480px) {
+    .digital-text {
+        font-size: 1.8rem;
+        letter-spacing: 0.1em;
+    }
+}
+
+/* Matrix-style background effect */
+.digital-loader::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(circle at 25% 25%, rgba(0, 255, 65, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(255, 0, 128, 0.05) 0%, transparent 50%);
+    animation: matrixPulse 4s ease-in-out infinite;
+}
+
+@keyframes matrixPulse {
+    0%, 100% {
+        opacity: 0.3;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.6;
+        transform: scale(1.05);
+    }
+}

@@ -52,6 +52,7 @@ const initializeDatabase = async () => {
         email VARCHAR(255) UNIQUE NOT NULL,
         password VARCHAR(255) NOT NULL,
         is_admin BOOLEAN DEFAULT FALSE,
+        user_type VARCHAR(50) DEFAULT 'free',
         vip_status VARCHAR(50) DEFAULT 'free',
         vip_expires_at TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -63,6 +64,7 @@ const initializeDatabase = async () => {
         email TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL,
         is_admin BOOLEAN DEFAULT 0,
+        user_type TEXT DEFAULT 'free',
         vip_status TEXT DEFAULT 'free',
         vip_expires_at DATETIME,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -153,6 +155,45 @@ const initializeDatabase = async () => {
     await query(signalsTableSQL);
     await query(vipCodesTableSQL);
     await query(settingsTableSQL);
+
+    // Add investments table
+    const investmentsTableSQL = isProduction ? `
+      CREATE TABLE IF NOT EXISTS investments (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL,
+        amount DECIMAL(20,2) NOT NULL,
+        profit_rate DECIMAL(5,2) DEFAULT 5.0,
+        payment_method VARCHAR(50) NOT NULL,
+        status VARCHAR(50) DEFAULT 'pending',
+        start_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id)
+      )
+    ` : `
+      CREATE TABLE IF NOT EXISTS investments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        amount REAL NOT NULL,
+        profit_rate REAL DEFAULT 5.0,
+        payment_method TEXT NOT NULL,
+        status TEXT DEFAULT 'pending',
+        start_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id)
+      )
+    `;
+    
+    await query(investmentsTableSQL);
+
+    // Add missing user_type column to existing users table if it doesn't exist
+    if (!isProduction) {
+      try {
+        await query('ALTER TABLE users ADD COLUMN user_type TEXT DEFAULT "free"');
+      } catch (err) {
+        // Column might already exist, ignore error
+        console.log('user_type column already exists or error adding it:', err.message);
+      }
+    }
 
     // Insert default data only if tables are empty
     const bcrypt = require('bcryptjs');
