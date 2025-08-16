@@ -8,7 +8,9 @@ const isProduction = process.env.NODE_ENV === 'production';
 const db = isProduction ? null : new sqlite3.Database('./trading_signals.db');
 const pool = isProduction ? new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+  ssl: {
+    rejectUnauthorized: false
+  }
 }) : null;
 
 // Database query wrapper
