@@ -227,24 +227,50 @@ function hideNotification() {
     }
 }
 
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(() => {
-        // Show temporary success message
-        const notification = document.getElementById('notification');
-        const messageElement = document.getElementById('notificationMessage');
-        
-        if (notification && messageElement) {
-            messageElement.textContent = 'Address copied to clipboard!';
-            notification.className = notification.className.replace(/bg-\w+-600/g, '');
-            notification.classList.add('bg-green-600');
-            notification.classList.remove('translate-x-full');
-            notification.classList.add('translate-x-0');
-            
-            setTimeout(() => {
-                hideNotification();
-            }, 2000);
+function copyToClipboard(elementId) {
+    const element = document.getElementById(elementId);
+    if (element && element.value) {
+        // Try modern clipboard API first
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(element.value).then(() => {
+                showCopyNotification();
+            }).catch(() => {
+                // Fallback to older method
+                fallbackCopy(element);
+            });
+        } else {
+            // Fallback for older browsers
+            fallbackCopy(element);
         }
-    });
+    }
+}
+
+function fallbackCopy(element) {
+    element.select();
+    element.setSelectionRange(0, 99999);
+    try {
+        document.execCommand('copy');
+        showCopyNotification();
+    } catch (err) {
+        console.error('Copy failed:', err);
+    }
+}
+
+function showCopyNotification() {
+    const notification = document.getElementById('notification');
+    const messageElement = document.getElementById('notificationMessage');
+    
+    if (notification && messageElement) {
+        messageElement.textContent = 'Address copied to clipboard!';
+        notification.className = notification.className.replace(/bg-\w+-600/g, '');
+        notification.classList.add('bg-green-600');
+        notification.classList.remove('translate-x-full');
+        notification.classList.add('translate-x-0');
+        
+        setTimeout(() => {
+            hideNotification();
+        }, 2000);
+    }
 }
 
 // Global functions for wallet integration

@@ -190,13 +190,16 @@ app.post('/api/vip/activate', async (req, res) => {
 // Investment creation endpoint
 app.post('/api/investment/create', async (req, res) => {
   try {
+    console.log('Investment creation request:', req.body);
     const { email, password, amount, paymentMethod } = req.body;
 
     if (!email || !password || !amount || !paymentMethod) {
+      console.log('Missing required fields');
       return res.status(400).json({ error: 'All fields are required' });
     }
 
     if (amount < 100) {
+      console.log('Amount too low:', amount);
       return res.status(400).json({ error: 'Minimum investment amount is 100 USDT' });
     }
 
@@ -247,20 +250,15 @@ app.post('/api/investment/create', async (req, res) => {
 
     // Get wallet address for the payment method
     const walletKey = `${paymentMethod.toLowerCase()}_address`;
+    console.log('Looking for wallet key:', walletKey);
     const walletResult = await query('SELECT value FROM settings WHERE key = $1', [walletKey]);
     const walletRows = walletResult.rows || walletResult || [];
+    console.log('Wallet query result:', walletRows);
     
     if (walletRows.length === 0 || !walletRows[0].value) {
+      console.log(`Wallet address not found for ${paymentMethod}`);
       return res.status(400).json({ error: `${paymentMethod} wallet address not configured. Please contact admin.` });
     }
-
-    const walletUpdates = {
-      btc_address,
-      eth_address, 
-      usdt_address,
-      bnb_address,
-      ton_address
-    };
 
     const paymentInfo = {
       method: paymentMethod,
@@ -305,6 +303,10 @@ app.post('/api/investment/create', async (req, res) => {
       paymentInfo,
       contactInfo
     });
+
+    console.log('Investment created successfully, returning response');
+    console.log('Payment info:', paymentInfo);
+    console.log('Contact info:', contactInfo);
 
   } catch (err) {
     console.error('Investment creation error:', err);
