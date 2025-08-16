@@ -34,7 +34,7 @@ class AdminPanel {
 
         try {
             this.currentUser = JSON.parse(user);
-            if (!this.currentUser.is_admin) {
+            if (!this.currentUser.isAdmin) {
                 this.showNotification('Admin access required', 'error');
                 this.redirectToLogin();
                 return;
