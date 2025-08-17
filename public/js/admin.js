@@ -123,13 +123,25 @@ class AdminPanel {
     }
 
     switchTab(tabId) {
-        // Update tab buttons
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        document.getElementById(`tab-${tabId}`).classList.add('active');
+        // Update tab buttons - remove active classes and add inactive styling
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active', 'bg-blue-600', 'text-white');
+            btn.classList.add('bg-gray-700', 'text-gray-300');
+        });
+        
+        // Add active styling to selected tab
+        const activeTab = document.getElementById(`tab-${tabId}`);
+        if (activeTab) {
+            activeTab.classList.remove('bg-gray-700', 'text-gray-300');
+            activeTab.classList.add('active', 'bg-blue-600', 'text-white');
+        }
 
         // Update tab content
         document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
-        document.getElementById(`${tabId}-tab`).classList.remove('hidden');
+        const targetContent = document.getElementById(`${tabId}-tab`);
+        if (targetContent) {
+            targetContent.classList.remove('hidden');
+        }
 
         this.currentTab = tabId;
 
@@ -727,28 +739,20 @@ class AdminPanel {
     }
 }
 
-// Initialize admin panel
-let adminPanel;
-document.addEventListener('DOMContentLoaded', () => {
-    adminPanel = new AdminPanel();
-});
-
 // Add CSS for tab buttons
 const style = document.createElement('style');
 style.textContent = `
-    .tab-btn {
-        color: #9CA3AF;
-        background-color: transparent;
-    }
-    
-    .tab-btn:hover {
-        color: #00d4aa;
-        background-color: rgba(0, 212, 170, 0.1);
-    }
-    
     .tab-btn.active {
-        color: #ffffff;
-        background-color: #00d4aa;
+        background-color: #2563eb !important;
+        color: white !important;
+    }
+    .tab-btn:not(.active) {
+        background-color: #374151 !important;
+        color: #9ca3af !important;
+    }
+    .tab-btn:not(.active):hover {
+        background-color: #4b5563 !important;
+        color: white !important;
     }
 `;
 document.head.appendChild(style);

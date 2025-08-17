@@ -55,10 +55,10 @@
         <!-- Tab Navigation -->
         <div class="mb-8">
             <div class="bg-gray-800 p-2 flex space-x-2 rounded-lg border border-gray-700">
-                <button id="tab-signals" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-all hover:bg-blue-700">Signals</button>
-                <button id="tab-vip-codes" class="bg-gray-700 text-gray-300 px-4 py-2 rounded-lg font-medium transition-all hover:bg-gray-600 hover:text-white">VIP Codes</button>
-                <button id="tab-settings" class="bg-gray-700 text-gray-300 px-4 py-2 rounded-lg font-medium transition-all hover:bg-gray-600 hover:text-white">Settings</button>
-                <button id="tab-analytics" class="bg-gray-700 text-gray-300 px-4 py-2 rounded-lg font-medium transition-all hover:bg-gray-600 hover:text-white">Analytics</button>
+                <button id="tab-signals" class="tab-btn active bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-all hover:bg-blue-700">Signals</button>
+                <button id="tab-vip-codes" class="tab-btn bg-gray-700 text-gray-300 px-4 py-2 rounded-lg font-medium transition-all hover:bg-gray-600 hover:text-white">VIP Codes</button>
+                <button id="tab-settings" class="tab-btn bg-gray-700 text-gray-300 px-4 py-2 rounded-lg font-medium transition-all hover:bg-gray-600 hover:text-white">Settings</button>
+                <button id="tab-analytics" class="tab-btn bg-gray-700 text-gray-300 px-4 py-2 rounded-lg font-medium transition-all hover:bg-gray-600 hover:text-white">Analytics</button>
             </div>
         </div>
 
@@ -439,5 +439,11 @@
     </div>
 
     <script src="/js/admin.js"></script>
+    <script>
+        // Initialize admin panel when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            new AdminPanel();
+        });
+    </script>
 </body>
 </html>
