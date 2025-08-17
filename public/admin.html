@@ -5,11 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Trading Signals Platform</title>
     <link href="https://cdn.tailwindcss.com" rel="stylesheet">
+    <link href="/css/output.css" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'trading-dark': '#0f1419',
+                        'trading-darker': '#1a1f2e',
+                        'trading-card': '#1a1f2e',
+                        'trading-border': '#2d3748',
+                        'trading-accent': '#00d4aa',
+                        'primary-500': '#3b82f6'
+                    },
+                    fontFamily: {
+                        'trading': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
 </head>
 <body class="font-trading antialiased bg-trading-dark text-white">
     <!-- Navigation -->
-    <nav class="navbar-glass border-b border-trading-border">
+    <nav class="bg-gray-800 bg-opacity-90 backdrop-blur-sm border-b border-gray-700">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center space-x-3">
@@ -20,11 +40,11 @@
                 </div>
                 <div class="flex items-center space-x-4">
                     <span id="admin-email" class="text-sm text-gray-300"></span>
-                    <a href="/" class="trading-button-secondary text-sm">
+                    <a href="/" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">
                         <i data-lucide="home" class="w-4 h-4 mr-2 inline"></i>
                         Back to Site
                     </a>
-                    <button id="admin-logout" class="trading-button-secondary text-sm">Logout</button>
+                    <button id="admin-logout" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">Logout</button>
                 </div>
             </div>
         </div>
@@ -34,11 +54,11 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Tab Navigation -->
         <div class="mb-8">
-            <div class="trading-card p-2 flex space-x-2">
-                <button id="tab-signals" class="tab-btn active px-4 py-2 rounded-lg font-medium transition-all">Signals</button>
-                <button id="tab-vip-codes" class="tab-btn px-4 py-2 rounded-lg font-medium transition-all">VIP Codes</button>
-                <button id="tab-settings" class="tab-btn px-4 py-2 rounded-lg font-medium transition-all">Settings</button>
-                <button id="tab-analytics" class="tab-btn px-4 py-2 rounded-lg font-medium transition-all">Analytics</button>
+            <div class="bg-gray-800 p-2 flex space-x-2 rounded-lg border border-gray-700">
+                <button id="tab-signals" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-all hover:bg-blue-700">Signals</button>
+                <button id="tab-vip-codes" class="bg-gray-700 text-gray-300 px-4 py-2 rounded-lg font-medium transition-all hover:bg-gray-600 hover:text-white">VIP Codes</button>
+                <button id="tab-settings" class="bg-gray-700 text-gray-300 px-4 py-2 rounded-lg font-medium transition-all hover:bg-gray-600 hover:text-white">Settings</button>
+                <button id="tab-analytics" class="bg-gray-700 text-gray-300 px-4 py-2 rounded-lg font-medium transition-all hover:bg-gray-600 hover:text-white">Analytics</button>
             </div>
         </div>
 
@@ -46,17 +66,17 @@
         <div id="signals-tab" class="tab-content">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-white">Manage Signals</h2>
-                <button id="add-signal-btn" class="trading-button-primary">
+                <button id="add-signal-btn" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md text-white font-medium transition-colors">
                     <i data-lucide="plus" class="w-5 h-5 mr-2 inline"></i>
                     Add Signal
                 </button>
             </div>
 
             <!-- Signals Table -->
-            <div class="trading-card overflow-hidden">
+            <div class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full">
-                        <thead class="bg-trading-darker">
+                        <thead class="bg-gray-900">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Pair</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Entry</th>
@@ -68,7 +88,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="signals-table-body" class="divide-y divide-trading-border">
+                        <tbody id="signals-table-body" class="divide-y divide-gray-700">
                             <!-- Signals will be loaded here -->
                         </tbody>
                     </table>
@@ -80,17 +100,17 @@
         <div id="vip-codes-tab" class="tab-content hidden">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-white">VIP Codes Management</h2>
-                <button id="generate-codes-btn" class="trading-button-primary">
+                <button id="generate-codes-btn" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md text-white font-medium transition-colors">
                     <i data-lucide="key" class="w-5 h-5 mr-2 inline"></i>
                     Generate Codes
                 </button>
             </div>
 
             <!-- VIP Codes Table -->
-            <div class="trading-card overflow-hidden">
+            <div class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full">
-                        <thead class="bg-trading-darker">
+                        <thead class="bg-gray-900">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Code</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Duration</th>
@@ -100,7 +120,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Created</th>
                             </tr>
                         </thead>
-                        <tbody id="vip-codes-table-body" class="divide-y divide-trading-border">
+                        <tbody id="vip-codes-table-body" class="divide-y divide-gray-700">
                             <!-- VIP codes will be loaded here -->
                         </tbody>
                     </table>
@@ -114,15 +134,15 @@
             
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- VIP Pricing -->
-                <div class="trading-card p-6">
+                <div class="bg-gray-800 rounded-lg border border-gray-700 p-6">
                     <h3 class="text-xl font-semibold text-white mb-4">VIP Pricing</h3>
                     <form id="settings-form">
                         <div class="mb-4">
                             <label for="vip-price" class="block text-sm font-medium text-gray-300 mb-2">VIP Price ($)</label>
                             <input type="number" id="vip-price" name="vip-price" step="0.01" min="0"
-                                   class="w-full px-4 py-3 bg-trading-darker border border-trading-border rounded-lg text-white placeholder-gray-500 focus:border-trading-accent focus:outline-none">
+                                   class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none">
                         </div>
-                        <button type="submit" class="trading-button-primary">
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md text-white font-medium transition-colors">
                             <i data-lucide="save" class="w-5 h-5 mr-2 inline"></i>
                             Save Settings
                         </button>
@@ -130,7 +150,7 @@
                 </div>
 
                 <!-- Contact Information -->
-                <div class="trading-card p-6">
+                <div class="bg-gray-800 rounded-lg border border-gray-700 p-6">
                     <h3 class="text-xl font-semibold text-white mb-4">Contact Information</h3>
                     <form id="contact-form">
                         <div class="mb-4">
@@ -147,7 +167,7 @@
                             <input type="text" id="contact-value" name="contact-value" placeholder="@username or phone number"
                                    class="w-full px-4 py-3 bg-trading-darker border border-trading-border rounded-lg text-white placeholder-gray-500 focus:border-trading-accent focus:outline-none">
                         </div>
-                        <button type="submit" class="trading-button-primary">
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md text-white font-medium transition-colors">
                             <i data-lucide="save" class="w-5 h-5 mr-2 inline"></i>
                             Save Contact Info
                         </button>
@@ -155,7 +175,7 @@
                 </div>
 
                 <!-- Crypto Wallet Management -->
-                <div class="trading-card p-6">
+                <div class="bg-gray-800 rounded-lg border border-gray-700 p-6">
                     <h3 class="text-xl font-semibold text-white mb-4">Crypto Wallet Addresses</h3>
                     <form id="walletForm" class="space-y-4">
                         <div>
@@ -188,7 +208,7 @@
                                    class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-trading-accent"
                                    placeholder="Enter TON wallet address">
                         </div>
-                        <button type="submit" class="trading-button-primary">
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md text-white font-medium transition-colors">
                             <i data-lucide="wallet" class="w-5 h-5 mr-2 inline"></i>
                             Update Wallet Addresses
                         </button>
@@ -196,7 +216,7 @@
                 </div>
 
                 <!-- Password Change -->
-                <div class="trading-card p-6">
+                <div class="bg-gray-800 rounded-lg border border-gray-700 p-6">
                     <h3 class="text-xl font-semibold text-white mb-4">Change Password</h3>
                     <form id="passwordForm" class="space-y-4">
                         <div>
@@ -217,7 +237,7 @@
                                    class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-trading-accent"
                                    placeholder="Confirm new password">
                         </div>
-                        <button type="submit" class="trading-button-primary">
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md text-white font-medium transition-colors">
                             <i data-lucide="key" class="w-5 h-5 mr-2 inline"></i>
                             Change Password
                         </button>
@@ -225,7 +245,7 @@
                 </div>
 
                 <!-- Platform Stats -->
-                <div class="trading-card p-6">
+                <div class="bg-gray-800 rounded-lg border border-gray-700 p-6">
                     <h3 class="text-xl font-semibold text-white mb-4">Platform Statistics</h3>
                     <div class="space-y-4">
                         <div class="flex justify-between items-center">
@@ -258,7 +278,7 @@
             <h2 class="text-2xl font-bold text-white mb-6">Analytics Dashboard</h2>
             
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="trading-card p-6">
+                <div class="bg-gray-800 rounded-lg border border-gray-700 p-6">
                     <h3 class="text-xl font-semibold text-white mb-4">Signal Performance</h3>
                     <div class="text-center text-gray-400">
                         <i data-lucide="bar-chart-3" class="w-16 h-16 mx-auto mb-4 opacity-50"></i>
@@ -266,7 +286,7 @@
                     </div>
                 </div>
                 
-                <div class="trading-card p-6">
+                <div class="bg-gray-800 rounded-lg border border-gray-700 p-6">
                     <h3 class="text-xl font-semibold text-white mb-4">User Growth</h3>
                     <div class="text-center text-gray-400">
                         <i data-lucide="trending-up" class="w-16 h-16 mx-auto mb-4 opacity-50"></i>
@@ -279,7 +299,7 @@
 
     <!-- Add/Edit Signal Modal -->
     <div id="signal-modal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 hidden items-center justify-center">
-        <div class="trading-card p-8 m-4 max-w-2xl w-full max-h-screen overflow-y-auto">
+        <div class="bg-gray-800 rounded-lg border border-gray-700 p-8 m-4 max-w-2xl w-full max-h-screen overflow-y-auto">
             <div class="flex justify-between items-center mb-6">
                 <h2 id="signal-modal-title" class="text-2xl font-bold text-white">Add Signal</h2>
                 <button id="close-signal-modal" class="text-gray-400 hover:text-white">
@@ -368,7 +388,7 @@
                 </div>
 
                 <div class="flex space-x-4">
-                    <button type="submit" class="trading-button-primary flex-1">
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md text-white font-medium transition-colors flex-1">
                         <i data-lucide="save" class="w-5 h-5 mr-2 inline"></i>
                         Save Signal
                     </button>
@@ -380,7 +400,7 @@
 
     <!-- Generate VIP Codes Modal -->
     <div id="vip-codes-modal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 hidden items-center justify-center">
-        <div class="trading-card p-8 m-4 max-w-md w-full">
+        <div class="bg-gray-800 rounded-lg border border-gray-700 p-8 m-4 max-w-md w-full">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-white">Generate VIP Codes</h2>
                 <button id="close-vip-codes-modal" class="text-gray-400 hover:text-white">
@@ -408,7 +428,7 @@
                 </div>
 
                 <div class="flex space-x-4">
-                    <button type="submit" class="trading-button-primary flex-1">
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md text-white font-medium transition-colors flex-1">
                         <i data-lucide="key" class="w-5 h-5 mr-2 inline"></i>
                         Generate Codes
                     </button>
